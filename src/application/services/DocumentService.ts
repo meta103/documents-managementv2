@@ -49,7 +49,8 @@ export class DocumentService {
       });
 
       // 4. Guarda en repositorio
-      await this.repository.save(validDocuments);
+      //TODO: el save hace algo??? 
+      /* await this.repository.save(validDocuments); */
 
       // 5. Retorna documentos
       return validDocuments;
@@ -66,11 +67,6 @@ export class DocumentService {
     return this.repository.getAll();
   }
 
-  /**
-   * Caso de uso: Observar cambios en documentos
-   * @param observer Función que se llama cuando hay cambios
-   * @returns Función para desuscribirse
-   */
   observeDocuments(observer: (docs: Document[]) => void): () => void {
     return this.repository.subscribe(observer);
   }

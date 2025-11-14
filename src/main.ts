@@ -1,13 +1,27 @@
-import './style.css'
+import { App } from "./app";
+import './styles/main.css';
 
-document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
-  <div>
-    <h1>Vite + TypeScript</h1>
-    <div class="card">
-      <button id="counter" type="button"></button>
-    </div>
-    <p class="read-the-docs">
-      Click on the Vite and TypeScript logos to learn more
-    </p>
-  </div>
-`
+function startApp(): void {
+  const rootElement = document.getElementById('app');
+  if (!rootElement) {
+    console.error("Root element not found in index.html");
+    return;
+  }
+
+  try {
+    //Instancia la app con el elemeneto raiz
+    const app = new App(rootElement);
+    //Inicia la App
+    app.initialize();
+  } catch (error) {
+    console.error("Error initializing the app:", error);
+    return;
+  }
+}
+
+//iniciar la app cuando el dom este ready
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', startApp);
+} else {
+  startApp();
+}

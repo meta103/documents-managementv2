@@ -15,13 +15,7 @@ export interface IDocumentRepository {
    */
   getAll(): Promise<Document[]>;
 
-  /**
-   * Guarda documentos (reemplaza los anteriores)
-   */
-  save(documents: Document[]): Promise<void>;
-
-  /**
-   * Se suscribe a cambios
-   */
   subscribe(observer: (docs: Document[]) => void): () => void;
+  //Mas adelante: otros métodos CRUD:
+  /* save(documents: Document[]): Promise<void>; */
 }

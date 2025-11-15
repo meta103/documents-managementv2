@@ -9,7 +9,7 @@ import { EventBus } from '../../infrastructure/event-bus/EventBus';
  * - Fácil de testear
  */
 export class SortBar extends HTMLElement {
-  private selectElement: HTMLSelectElement | null = null;
+  private selectedOption: 'name' | 'version' | 'createdDate' = 'name';
 
   constructor() {
     super();
@@ -37,8 +37,8 @@ export class SortBar extends HTMLElement {
                   <div class="control">
                     <div class="select is-info is-rounded">
                       <select id="sort-select">
-                        <option value="name">📝 Name (A-Z)</option>
-                        <option value="version">📌 Version</option>
+                        <option value="name">🔠 Name (A-Z)</option>
+                        <option value="version">🗄️ Version</option>
                         <option value="createdDate">📅 Created Date</option>
                       </select>
                     </div>
@@ -66,14 +66,14 @@ export class SortBar extends HTMLElement {
         | 'name'
         | 'version'
         | 'createdDate';
-
+      this.selectedOption = (e.target as HTMLSelectElement).value as 'name' | 'version' | 'createdDate';
       // ⭐ Emite a EventBus, no CustomEvent
       EventBus.emit('SORT_CHANGED', { sortBy });
     });
   }
 
   getCurrentSort(): 'name' | 'version' | 'createdDate' {
-    return (this.selectElement?.value || 'name') as 'name' | 'version' | 'createdDate';
+    return this.selectedOption;
   }
 }
 

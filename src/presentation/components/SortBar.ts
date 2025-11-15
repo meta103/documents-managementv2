@@ -38,7 +38,7 @@ export class SortBar extends HTMLElement {
                     <div class="select is-info is-rounded">
                       <select id="sort-select">
                         <option value="name">📝 Name (A-Z)</option>
-                        <option selected="${this.selectElement?.value === 'version'}" value="version">📌 Version</option>
+                        <option value="version">📌 Version</option>
                         <option value="createdDate">📅 Created Date</option>
                       </select>
                     </div>
@@ -51,12 +51,6 @@ export class SortBar extends HTMLElement {
       </div>
     `;
   }
-
-  /* private cacheElements(): void {
-    console.log('chache');
-
-    this.selectElement = this.querySelector('#sort-select') as HTMLSelectElement;
-  } */
 
   private setupEventListener(): void {
     console.log('eventListener');

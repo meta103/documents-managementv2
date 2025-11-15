@@ -17,5 +17,5 @@ export interface IDocumentRepository {
 
   subscribe(observer: (docs: Document[]) => void): () => void;
   //Mas adelante: otros métodos CRUD:
-  /* save(documents: Document[]): Promise<void>; */
+  save(documents: Document[]): Promise<void>;
 }

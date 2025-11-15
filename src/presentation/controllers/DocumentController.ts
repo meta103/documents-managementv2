@@ -20,7 +20,7 @@ import { NotificationView } from '../views/NotificationView';
  * Ventaja: Desacoplado de detalles técnicos (API, persistencia, etc)
  */
 export class DocumentController {
-  private currentSortBy: 'name' | 'version' | 'createdDate' = 'name';
+  private currentSortBy: 'name' | 'version' | 'createdDate' = 'createdDate';
   private allDocuments: any[] = [];
   private unsubscribers: Array<() => void> = [];
 

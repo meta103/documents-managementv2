@@ -9,7 +9,7 @@ import { EventBus } from '../../infrastructure/event-bus/EventBus';
  * - Fácil de testear
  */
 export class SortBar extends HTMLElement {
-  private selectedOption: 'name' | 'version' | 'createdDate' = 'name';
+  private selectedOption: 'name' | 'version' | 'createdDate' = 'createdDate';
 
   constructor() {
     super();
@@ -37,9 +37,9 @@ export class SortBar extends HTMLElement {
                   <div class="control">
                     <div class="select is-info is-rounded">
                       <select id="sort-select">
+                        <option value="createdDate">📅 Created Date</option>
                         <option value="name">🔠 Name (A-Z)</option>
                         <option value="version">🗄️ Version</option>
-                        <option value="createdDate">📅 Created Date</option>
                       </select>
                     </div>
                   </div>

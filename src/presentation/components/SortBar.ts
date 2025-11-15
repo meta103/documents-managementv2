@@ -72,6 +72,7 @@ export class SortBar extends HTMLElement {
     });
   }
 
+  //No se usa
   getCurrentSort(): 'name' | 'version' | 'createdDate' {
     return this.selectedOption;
   }

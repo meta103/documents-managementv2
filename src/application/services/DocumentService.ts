@@ -67,12 +67,11 @@ export class DocumentService {
     return this.repository.getAll();
   }
 
-  async getDocumentsSorted(
-    sortBy: 'name' | 'version' | 'createdDate' = 'name',
-    order: 'asc' | 'desc' = 'asc'
-  ): Promise<Document[]> {
-    const documents = await this.getAllDocuments();
-    return DocumentSorter.sort(documents, sortBy, order);
+  sortDocumentsSync(
+    documents: Document[],
+    sortBy: 'name' | 'version' | 'createdDate' = 'name'
+  ): Document[] {
+    return DocumentSorter.sort(documents, sortBy, 'asc');
   }
 
   observeDocuments(observer: (docs: Document[]) => void): () => void {

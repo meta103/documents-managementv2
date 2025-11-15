@@ -1,11 +1,12 @@
 // Controller: Orquesta Application Service + Views
 
 import { DocumentService } from '../../application/services/DocumentService';
+import { EventBus } from '../../infrastructure/event-bus/EventBus';
 import { WebSocketService, type WebSocketNotificationService } from '../../infrastructure/services/WebSocketService';
+import { Grid } from '../components/Grid';
+import { SortBar } from '../components/SortBar';
 import type { DocumentsGridView } from '../views/DocumentsGridView';
 import { NotificationView } from '../views/NotificationView';
-import { SortBar } from '../components/SortBar';
-import { Grid } from '../components/Grid';
 
 /**
  * DocumentController - Controlador MVC
@@ -19,8 +20,9 @@ import { Grid } from '../components/Grid';
  * Ventaja: Desacoplado de detalles técnicos (API, persistencia, etc)
  */
 export class DocumentController {
-  private sortBar: SortBar | null = null;
-  private grid: Grid | null = null;
+  private currentSortBy: 'name' | 'version' | 'createdDate' = 'name';
+  private allDocuments: any[] = [];
+  private unsubscribers: Array<() => void> = [];
 
   constructor(
     private documentService: DocumentService,
@@ -44,15 +46,24 @@ export class DocumentController {
       const documents = await this.documentService.loadAllDocuments();
       // Muestra notificación
       this.notificationView.success(`Loaded ${documents.length} documents`);
-      this.gridView.render(documents);
+
+      // Guarda copia para usar en sort
+      this.allDocuments = documents;
+      //2. Render grid
+      const sorted = this.applyCurrentSort(documents);
+      this.gridView.render(sorted);
+      //3. Setup listeners via EventBus
+      this.setupEventListeners();
+
       // 2. Suscribe la vista a cambios del repositorio
       // Cuando el repositorio cambia, la vista se actualiza automáticamente
       //TODO: Esto hace algo? 
       this.documentService.observeDocuments(docs => {
         console.log('🔄 Documents changed, updating view...');
-        const sortBy = this.sortBar?.getSortBy() || 'name';
-        const order = this.sortBar?.getOrder() || 'asc';
-        this.renderWithSort(docs, sortBy, order);
+        console.log(docs);
+        this.allDocuments = docs;
+        const sorted = this.applyCurrentSort(docs);
+        this.gridView.render(sorted);
         /* this.gridView.render(docs); */
       });
 
@@ -86,15 +97,46 @@ export class DocumentController {
     }
   }
 
-  private async renderWithSort(
-    documents: any[],
-    sortBy: 'name' | 'version' | 'createdDate',
-    order: 'asc' | 'desc'
-  ): Promise<void> {
-    const sorted = await this.documentService.getDocumentsSorted(sortBy, order);
-    console.log(sorted);
+  /**
+   * Setup listeners via EventBus
+   * 
+   * Ventajas vs addEventListener:
+   * - Type-safe: TypeScript valida eventos y payloads
+   * - Centralized: Un único punto de verdad
+   * - Easy cleanup: guardamos unsubscribers
+   * - Debuggable: console.log en EventBus
+   */
+  private setupEventListeners(): void {
+    // Listener para SORT_CHANGED
+    const unsubscribeSort = EventBus.on('SORT_CHANGED', (payload) => {
+      this.currentSortBy = payload.sortBy;
+      console.log(`🔄 Sort changed to: ${this.currentSortBy}`);
 
-    this.gridView.render(sorted);
+      const sorted = this.applyCurrentSort(this.allDocuments);
+      this.gridView.render(sorted);
+    });
+
+    this.unsubscribers.push(unsubscribeSort);
+  }
+
+  /**
+   * Aplica el sort actual a los documentos
+   */
+  private applyCurrentSort(documents: any[]): any[] {
+    console.log(`Sorting by ${this.currentSortBy}...`);
+    return this.documentService.sortDocumentsSync(
+      documents,
+      this.currentSortBy
+    );
+  }
+
+  /**
+   * Limpieza: desuscribir de todos los eventos
+   * (útil si el controller se destruye)
+   */
+  destroy(): void {
+    this.unsubscribers.forEach(unsubscribe => unsubscribe());
+    this.unsubscribers = [];
   }
 
   /**

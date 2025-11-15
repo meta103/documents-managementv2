@@ -79,3 +79,95 @@ export class DocumentValidator {
     };
   }
 }
+
+export class DocumentSorter {
+  /**
+   * Tipos de ordenamiento soportados
+   */
+  static readonly SORT_BY = {
+    NAME: 'name',
+    VERSION: 'version',
+    CREATED_DATE: 'createdDate',
+  } as const;
+
+  /**
+   * Orden ascendente o descendente
+   */
+  static readonly SORT_ORDER = {
+    ASC: 'asc',
+    DESC: 'desc',
+  } as const;
+
+  /**
+   * Ordena documentos por el campo especificado
+   * 
+   * @param documents Array de documentos a ordenar
+   * @param sortBy Campo por el cual ordenar: 'name' | 'version' | 'createdDate'
+   * @param order Orden: 'asc' | 'desc'
+   * @returns Array ordenado (no modifica el original)
+   */
+  static sort(
+    documents: Document[],
+    sortBy: 'name' | 'version' | 'createdDate' = 'name',
+    order: 'asc' | 'desc' = 'asc'
+  ): Document[] {
+    const sorted = [...documents];
+
+    sorted.sort((a, b) => {
+      let compareValue = 0;
+
+      switch (sortBy) {
+        case 'name':
+          // Ordenar por título alfabéticamente
+          compareValue = a.title.localeCompare(b.title);
+          break;
+
+        case 'version':
+          // Ordenar por versión semántica
+          compareValue = this.compareVersions(a.version, b.version);
+          break;
+
+        case 'createdDate':
+          // Ordenar por fecha de creación
+          compareValue =
+            new Date(a.createdAt).getTime() -
+            new Date(b.createdAt).getTime();
+          break;
+
+        default:
+          compareValue = 0;
+      }
+
+      // Invertir si es descendente
+      return order === 'desc' ? -compareValue : compareValue;
+    });
+
+    return sorted;
+  }
+
+  /**
+   * Compara versiones semánticas correctamente
+   * 
+   * Ejemplos:
+   * - "1.0.0" > "0.9.0" ✅
+   * - "2.1.0" > "2.0.5" ✅
+   * - "1.0.0" = "1.0.0" ✅
+   */
+  private static compareVersions(versionA: string, versionB: string): number {
+    const partsA = versionA.split('.').map(Number);
+    const partsB = versionB.split('.').map(Number);
+
+    // Itera por cada parte de la versión
+    for (let i = 0; i < Math.max(partsA.length, partsB.length); i++) {
+      const partA = partsA[i] || 0;
+      const partB = partsB[i] || 0;
+
+      if (partA !== partB) {
+        return partA - partB;
+      }
+    }
+
+    // Versiones iguales
+    return 0;
+  }
+}

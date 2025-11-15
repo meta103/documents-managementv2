@@ -1,6 +1,6 @@
 // Application Service: Orquesta Domain + Infrastructure
 
-import { type Document, DocumentValidator } from '../../domain/Document';
+import { type Document, DocumentSorter, DocumentValidator } from '../../domain/Document';
 import { ApiService } from '../../infrastructure/services/ApiService';
 import { DocumentMapper } from '../../infrastructure/mappers/DocumentMapper';
 import type { IDocumentRepository } from '../../infrastructure/repositories/IDocumentRepository';
@@ -50,7 +50,7 @@ export class DocumentService {
 
       // 4. Guarda en repositorio
       //TODO: el save hace algo??? 
-      /* await this.repository.save(validDocuments); */
+      await this.repository.save(validDocuments);
 
       // 5. Retorna documentos
       return validDocuments;
@@ -65,6 +65,14 @@ export class DocumentService {
    */
   async getAllDocuments(): Promise<Document[]> {
     return this.repository.getAll();
+  }
+
+  async getDocumentsSorted(
+    sortBy: 'name' | 'version' | 'createdDate' = 'name',
+    order: 'asc' | 'desc' = 'asc'
+  ): Promise<Document[]> {
+    const documents = await this.getAllDocuments();
+    return DocumentSorter.sort(documents, sortBy, order);
   }
 
   observeDocuments(observer: (docs: Document[]) => void): () => void {

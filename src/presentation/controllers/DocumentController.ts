@@ -4,6 +4,8 @@ import { DocumentService } from '../../application/services/DocumentService';
 import { WebSocketService, type WebSocketNotificationService } from '../../infrastructure/services/WebSocketService';
 import type { DocumentsGridView } from '../views/DocumentsGridView';
 import { NotificationView } from '../views/NotificationView';
+import { SortBar } from '../components/SortBar';
+import { Grid } from '../components/Grid';
 
 /**
  * DocumentController - Controlador MVC
@@ -17,6 +19,9 @@ import { NotificationView } from '../views/NotificationView';
  * Ventaja: Desacoplado de detalles técnicos (API, persistencia, etc)
  */
 export class DocumentController {
+  private sortBar: SortBar | null = null;
+  private grid: Grid | null = null;
+
   constructor(
     private documentService: DocumentService,
     private wsService: WebSocketService,
@@ -45,7 +50,10 @@ export class DocumentController {
       //TODO: Esto hace algo? 
       this.documentService.observeDocuments(docs => {
         console.log('🔄 Documents changed, updating view...');
-        this.gridView.render(docs);
+        const sortBy = this.sortBar?.getSortBy() || 'name';
+        const order = this.sortBar?.getOrder() || 'asc';
+        this.renderWithSort(docs, sortBy, order);
+        /* this.gridView.render(docs); */
       });
 
       // 3. Conecta WebSocket para notificaciones en tiempo real
@@ -78,6 +86,17 @@ export class DocumentController {
     }
   }
 
+  private async renderWithSort(
+    documents: any[],
+    sortBy: 'name' | 'version' | 'createdDate',
+    order: 'asc' | 'desc'
+  ): Promise<void> {
+    const sorted = await this.documentService.getDocumentsSorted(sortBy, order);
+    console.log(sorted);
+
+    this.gridView.render(sorted);
+  }
+
   /**
    * Maneja notificación de nuevo documento creado por otro usuario
    * 
@@ -90,7 +109,7 @@ export class DocumentController {
     const message = `${notification.UserName} created "${notification.DocumentTitle}"`;
 
     // Muestra notificación visual
-    this.notificationView.info(message, 6000);
+    /* this.notificationView.info(message, 6000); */
 
     // Nota: En el futuro, aquí podríamos:
     // - Cargar el nuevo documento automáticamente

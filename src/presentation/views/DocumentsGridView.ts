@@ -1,7 +1,9 @@
 import type { Document } from '../../domain/Document';
+import { AddDocumentButton } from '../components/AddDocumentButton';
 import { CellList } from '../components/CellList';
 import { CellTitle } from '../components/CellTitle';
 import { Grid } from '../components/Grid';
+import { SortBar } from '../components/SortBar';
 
 export class DocumentsGridView {
   private root: HTMLElement;
@@ -24,7 +26,8 @@ export class DocumentsGridView {
     gridContainer.className = 'documents-grid';
 
     //Inyectar filtro 
-    const sortBar = document.createElement('app-sort-bar');
+    const sortBar = new SortBar();
+    /* const sortBar = document.createElement('sort-bar'); */
     gridContainer.appendChild(sortBar);
 
     //Inyectar Grid
@@ -43,12 +46,11 @@ export class DocumentsGridView {
       cardContainer.appendChild(cellContributors);
       cardContainer.appendChild(cellAttachments);
     })
-    //Card para cada document
-    /* documents.forEach((doc: Document) => {
-      const card = new DocumentCard(doc);
-      card.setAttribute('data-document-id', doc.id);
-      gridMain.appendChild(card);
-    }); */
+
+    //Inyectar boton add 
+    const addButton = document.createElement('add-button');
+    /*  const addButton = new AddDocumentButton(); */
+    gridContainer.appendChild(addButton);
 
     //Insertar en DOM:
     this.root.appendChild(gridContainer);

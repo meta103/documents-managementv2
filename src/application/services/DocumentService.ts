@@ -1,9 +1,9 @@
 // Application Service: Orquesta Domain + Infrastructure
 
 import { type Document, DocumentSorter, DocumentValidator } from '../../domain/Document';
-import { ApiService } from '../../infrastructure/services/ApiService';
 import { DocumentMapper } from '../../infrastructure/mappers/DocumentMapper';
-import type { IDocumentRepository } from '../../infrastructure/repositories/IDocumentRepository';
+import type { DocumentRepository } from '../../infrastructure/repositories/DocumentRepository';
+import { ApiService } from '../../infrastructure/services/ApiService';
 
 /**
  * DocumentService - Application Service
@@ -17,7 +17,7 @@ import type { IDocumentRepository } from '../../infrastructure/repositories/IDoc
  */
 export class DocumentService {
   constructor(
-    private repository: IDocumentRepository,
+    private repository: DocumentRepository,
     private apiService: ApiService
   ) { }
 
@@ -39,6 +39,7 @@ export class DocumentService {
       // 2. Mapea a nuestro modelo
       const documents = rawDocuments.map(raw => DocumentMapper.toDomain(raw));
 
+      //TODO: no hace falta validar creo yo
       // 3. Valida cada documento
       const validDocuments = documents.filter(doc => {
         const validation = DocumentValidator.validate(doc);

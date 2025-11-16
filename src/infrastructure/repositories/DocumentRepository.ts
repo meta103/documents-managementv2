@@ -24,7 +24,11 @@ export class DocumentRepository implements IDocumentRepository {
    * Guarda documentos y notifica observers
    */
   async save(documents: Document[]): Promise<void> {
+    console.log('SAVE');
+
     this.documents = [...documents];
+    console.log(this.documents);
+
     this.notifyObservers();
   }
 

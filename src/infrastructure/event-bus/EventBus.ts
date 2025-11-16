@@ -24,7 +24,7 @@ export type EventType =
   | 'NOTIFICATION_SHOWN';
 
 export interface EventPayload {
-  SORT_CHANGED: { sortBy: 'name' | 'version' | 'createdDate' };
+  SORT_CHANGED: { sortBy: 'name' | 'version' | 'createdAt' };
   SHOW_MODAL: { show: true };
   DOCUMENTS_LOADED: { count: number };
   DOCUMENT_CREATED: { documentId: string };

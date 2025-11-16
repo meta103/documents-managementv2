@@ -87,7 +87,7 @@ export class DocumentSorter {
   static readonly SORT_BY = {
     NAME: 'name',
     VERSION: 'version',
-    CREATED_DATE: 'createdDate',
+    CREATED_DATE: 'createdAt',
   } as const;
 
   /**
@@ -102,13 +102,13 @@ export class DocumentSorter {
    * Ordena documentos por el campo especificado
    * 
    * @param documents Array de documentos a ordenar
-   * @param sortBy Campo por el cual ordenar: 'name' | 'version' | 'createdDate'
+   * @param sortBy Campo por el cual ordenar: 'name' | 'version' | 'createdAt'
    * @param order Orden: 'asc' | 'desc'
    * @returns Array ordenado (no modifica el original)
    */
   static sort(
     documents: Document[],
-    sortBy: 'name' | 'version' | 'createdDate' = 'name',
+    sortBy: 'name' | 'version' | 'createdAt' = 'createdAt',
     order: 'asc' | 'desc' = 'asc'
   ): Document[] {
     const sorted = [...documents];
@@ -127,11 +127,9 @@ export class DocumentSorter {
           compareValue = this.compareVersions(a.version, b.version);
           break;
 
-        case 'createdDate':
+        case 'createdAt':
           // Ordenar por fecha de creación
-          compareValue =
-            new Date(a.createdAt).getTime() -
-            new Date(b.createdAt).getTime();
+          compareValue = this.compareCreatedDates(a.createdAt, b.createdAt);
           break;
 
         default:
@@ -169,5 +167,17 @@ export class DocumentSorter {
 
     // Versiones iguales
     return 0;
+  }
+
+  private static compareCreatedDates(dateA: string, dateB: string): number {
+    const timeA = new Date(dateA).getTime();
+    const timeB = new Date(dateB).getTime();
+
+    if (isNaN(timeA) || isNaN(timeB)) {
+      console.warn('⚠️ Invalid date format');
+      return 0;
+    }
+
+    return timeB - timeA;
   }
 }

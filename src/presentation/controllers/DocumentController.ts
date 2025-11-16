@@ -1,113 +1,128 @@
-// Controller: Orquesta Application Service + Views
-
 import { DocumentService } from '../../application/services/DocumentService';
-import { EventBus } from '../../infrastructure/event-bus/EventBus';
+import { CreateDocumentCommand } from '../../application/commands/CreateDocumentCommand';
 import { WebSocketService, type WebSocketNotificationService } from '../../infrastructure/services/WebSocketService';
-import { Grid } from '../components/Grid';
-import { SortBar } from '../components/SortBar';
-import type { DocumentsGridView } from '../views/DocumentsGridView';
+import { DocumentsGridView } from '../views/DocumentsGridView';
 import { NotificationView } from '../views/NotificationView';
+import { EventBus } from '../../infrastructure/event-bus/EventBus';
+import { createCreateDocumentModal, type FormData } from '../components/CreateDocumentModal';
+import { DocumentRepository } from '../../infrastructure/repositories/DocumentRepository';
 
 /**
- * DocumentController - Controlador MVC
- * 
- * Responsabilidades:
- * 1. Recibir eventos del usuario
- * 2. Llamar a Application Service (casos de uso)
- * 3. Actualizar vistas con los resultados
- * 4. Manejar notificaciones
- * 
- * Ventaja: Desacoplado de detalles técnicos (API, persistencia, etc)
+ * DocumentController - SIMPLIFICADO
+ * SortBar es Web Component que se auto-renderiza
  */
 export class DocumentController {
   private currentSortBy: 'name' | 'version' | 'createdDate' = 'createdDate';
   private allDocuments: any[] = [];
+  private createDocumentCommand: CreateDocumentCommand;
   private unsubscribers: Array<() => void> = [];
+  private documentRepository: DocumentRepository;
 
   constructor(
     private documentService: DocumentService,
     private wsService: WebSocketService,
     private gridView: DocumentsGridView,
     private notificationView: NotificationView
-  ) { }
+  ) {
+    this.documentRepository = new DocumentRepository();
+    this.createDocumentCommand = new CreateDocumentCommand(this.documentRepository);
+  }
 
-  /**
-   * Inicializa el controlador
-   * Flujo:
-   * 1. Carga documentos del servidor (via ApplicationService)
-   * 2. Suscribe vista a cambios del repositorio
-   * 3. Conecta WebSocket para notificaciones en tiempo real
-   */
   async initialize(): Promise<void> {
     try {
       console.log('📥 Loading documents...');
 
-      // 1. Carga documentos (Application Service se encarga de todo)
+      // 1. Cargar documentos
       const documents = await this.documentService.loadAllDocuments();
-      // Muestra notificación
+      console.log(`✅ Loaded ${documents.length} documents`);
       this.notificationView.success(`Loaded ${documents.length} documents`);
-
-      // Guarda copia para usar en sort
       this.allDocuments = documents;
-      //2. Render grid
-      const sorted = this.applyCurrentSort(documents);
-      this.gridView.render(sorted);
-      //3. Setup listeners via EventBus
+
+      EventBus.emit('DOCUMENTS_LOADED', { count: documents.length });
+
+      // 2. Renderizar (inyecta <app-sort-bar> que se auto-renderiza)
+      this.gridView.render(documents);
+
+      // 4. Setup listeners via EventBus
       this.setupEventListeners();
 
-      // 2. Suscribe la vista a cambios del repositorio
-      // Cuando el repositorio cambia, la vista se actualiza automáticamente
-      //TODO: Esto hace algo? 
+      // 5. Suscribir a cambios del repositorio
       this.documentService.observeDocuments(docs => {
-        console.log('🔄 Documents changed, updating view...');
-        console.log(docs);
+        console.log('🔄 Documents changed in repository');
         this.allDocuments = docs;
         const sorted = this.applyCurrentSort(docs);
         this.gridView.render(sorted);
-        /* this.gridView.render(docs); */
       });
 
-      // 3. Conecta WebSocket para notificaciones en tiempo real
-      console.log('🔗 Connecting WebSocket...');
+      // 6. WebSocket
       try {
         await this.wsService.connect();
         console.log('✅ WebSocket connected');
-
-        // Muestra notificación de conexión
         this.notificationView.info('Connected to real-time notifications');
 
-        // Suscribe a notificaciones de WebSocket
         this.wsService.subscribe((notification: WebSocketNotificationService) => {
-          this.handleNewDocumentNotification(notification);
+          const msg = `${notification.UserName} created "${notification.DocumentTitle}"`;
+          /* this.notificationView.info(msg, 6000); */
         });
       } catch (error) {
-        console.error('⚠️ WebSocket connection failed:', error);
-        // App sigue funcionando sin WebSocket
-        this.notificationView.warning(
-          'Real-time notifications unavailable',
-          7000
-        );
+        console.error('⚠️ WebSocket failed:', error);
+        this.notificationView.warning('Real-time unavailable', 7000);
       }
 
-      console.log('✅ Controller initialized successfully');
+      console.log('✅ Controller initialized');
     } catch (error) {
-      console.error('❌ Controller initialization failed:', error);
+      console.error('❌ Init failed:', error);
       this.notificationView.error('Failed to load documents', 10000);
       throw error;
     }
   }
 
   /**
+   * Abre el modal de crear documento
+   */
+  private openCreateDocumentModal(): void {
+    const modal = createCreateDocumentModal(
+      async (formData) => {
+        await this.handleCreateDocument(formData);
+      },
+      () => {
+        console.log('Modal cancelado');
+      }
+    );
+
+    document.body.appendChild(modal);
+  }
+
+  /**
+   * Maneja la creación de documento
+   */
+  private async handleCreateDocument(formData: FormData): Promise<void> {
+    try {
+      console.log('📝 Creating document...', formData);
+
+      if (!this.createDocumentCommand) {
+        throw new Error('CreateDocumentCommand not initialized');
+      }
+
+      const newDocument = await this.createDocumentCommand.execute(formData);
+
+      console.log('✅ Document created:', newDocument);
+
+      EventBus.emit('DOCUMENT_CREATED', { documentId: newDocument.id });
+
+      this.notificationView.success(`Document "${newDocument.title}" created!`);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Failed to create document';
+      console.error('❌ Error creating document:', error);
+      this.notificationView.error(message, 8000);
+      throw error;
+    }
+  }
+
+  /**
    * Setup listeners via EventBus
-   * 
-   * Ventajas vs addEventListener:
-   * - Type-safe: TypeScript valida eventos y payloads
-   * - Centralized: Un único punto de verdad
-   * - Easy cleanup: guardamos unsubscribers
-   * - Debuggable: console.log en EventBus
    */
   private setupEventListeners(): void {
-    // Listener para SORT_CHANGED
     const unsubscribeSort = EventBus.on('SORT_CHANGED', (payload) => {
       this.currentSortBy = payload.sortBy;
       console.log(`🔄 Sort changed to: ${this.currentSortBy}`);
@@ -116,11 +131,19 @@ export class DocumentController {
       this.gridView.render(sorted);
     });
 
+    const unsubscribeShowModal = EventBus.on('SHOW_MODAL', (payload) => {
+      console.log(`🔄 Show modal to: ${payload.show}`);
+      this.openCreateDocumentModal();
+
+
+    });
+
     this.unsubscribers.push(unsubscribeSort);
+    this.unsubscribers.push(unsubscribeShowModal)
   }
 
   /**
-   * Aplica el sort actual a los documentos
+   * Aplica el sort actual
    */
   private applyCurrentSort(documents: any[]): any[] {
     console.log(`Sorting by ${this.currentSortBy}...`);
@@ -131,31 +154,10 @@ export class DocumentController {
   }
 
   /**
-   * Limpieza: desuscribir de todos los eventos
-   * (útil si el controller se destruye)
+   * Cleanup
    */
   destroy(): void {
     this.unsubscribers.forEach(unsubscribe => unsubscribe());
     this.unsubscribers = [];
-  }
-
-  /**
-   * Maneja notificación de nuevo documento creado por otro usuario
-   * 
-   * WebSocket notifica: "Otro usuario creó un documento"
-   * Mostramos una notificación visual al usuario
-   */
-  private handleNewDocumentNotification(
-    notification: WebSocketNotificationService
-  ): void {
-    const message = `${notification.UserName} created "${notification.DocumentTitle}"`;
-
-    // Muestra notificación visual
-    /* this.notificationView.info(message, 6000); */
-
-    // Nota: En el futuro, aquí podríamos:
-    // - Cargar el nuevo documento automáticamente
-    // - Añadirlo al grid sin recargar
-    // - Hacer refresh de los datos
   }
 }

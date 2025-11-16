@@ -18,12 +18,14 @@
 
 export type EventType =
   | 'SORT_CHANGED'
+  | 'SHOW_MODAL'
   | 'DOCUMENTS_LOADED'
   | 'DOCUMENT_CREATED'
   | 'NOTIFICATION_SHOWN';
 
 export interface EventPayload {
   SORT_CHANGED: { sortBy: 'name' | 'version' | 'createdDate' };
+  SHOW_MODAL: { show: true };
   DOCUMENTS_LOADED: { count: number };
   DOCUMENT_CREATED: { documentId: string };
   NOTIFICATION_SHOWN: { message: string };

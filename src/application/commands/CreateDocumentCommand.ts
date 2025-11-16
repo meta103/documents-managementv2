@@ -32,6 +32,8 @@ export class CreateDocumentCommand {
     console.log(this.repository);
 
     const currentDocuments = await this.repository.getAll();
+    console.log(currentDocuments);
+
 
     // 5. Agregar el nuevo
     const allDocuments = [...currentDocuments, document];

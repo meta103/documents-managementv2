@@ -6,6 +6,7 @@ import { NotificationView } from '../views/NotificationView';
 import { EventBus } from '../../infrastructure/event-bus/EventBus';
 import { createCreateDocumentModal, type FormData } from '../components/CreateDocumentModal';
 import { DocumentRepository } from '../../infrastructure/repositories/DocumentRepository';
+import type { IDocumentRepository } from '../../infrastructure/repositories/IDocumentRepository';
 
 /**
  * DocumentController - SIMPLIFICADO
@@ -16,16 +17,15 @@ export class DocumentController {
   private allDocuments: any[] = [];
   private createDocumentCommand: CreateDocumentCommand;
   private unsubscribers: Array<() => void> = [];
-  private documentRepository: DocumentRepository;
 
   constructor(
     private documentService: DocumentService,
     private wsService: WebSocketService,
     private gridView: DocumentsGridView,
-    private notificationView: NotificationView
+    private notificationView: NotificationView,
+    documentRepository: IDocumentRepository
   ) {
-    this.documentRepository = new DocumentRepository();
-    this.createDocumentCommand = new CreateDocumentCommand(this.documentRepository);
+    this.createDocumentCommand = new CreateDocumentCommand(documentRepository);
   }
 
   async initialize(): Promise<void> {
@@ -47,7 +47,7 @@ export class DocumentController {
       this.setupEventListeners();
 
       // 5. Suscribir a cambios del repositorio
-      this.documentService.observeDocuments(docs => {
+      await this.documentService.observeDocuments(docs => {
         console.log('🔄 Documents changed in repository');
         this.allDocuments = docs;
         const sorted = this.applyCurrentSort(docs);

@@ -6,7 +6,10 @@ import { DocumentController } from "./presentation/controllers/DocumentControlle
 import { DocumentsGridView } from "./presentation/views/DocumentsGridView";
 import { NotificationView } from "./presentation/views/NotificationView";
 
-
+/**
+ * App - Bootstrap
+ * ⭐ NUEVO: Crea UNA SOLA instancia de repository y la comparte
+ */
 export class App {
   private rootElement: HTMLElement;
   private documentsController: DocumentController;
@@ -17,6 +20,8 @@ export class App {
     // ===== INFRASTRUCTURE LAYER =====
     const apiService = new ApiService();
     const wsService = new WebSocketService();
+
+    // ⭐ UNA SOLA instancia de repository
     const documentRepository = new DocumentRepository();
 
     // ===== APPLICATION LAYER =====
@@ -29,18 +34,19 @@ export class App {
     const gridView = new DocumentsGridView(this.rootElement);
     const notificationView = new NotificationView();
 
-    // ===== CONTROLLERS (orquestan presentation + application) =====
+    // ===== CONTROLLERS =====
+    // ⭐ Pasa el MISMO repository al controller
     this.documentsController = new DocumentController(
       documentService,
       wsService,
       gridView,
-      notificationView
+      notificationView,
+      documentRepository  // ← LA MISMA INSTANCIA
     );
   }
 
   async initialize(): Promise<void> {
     try {
-      //Inicializa el controlador, que hace todo lo demas.
       await this.documentsController.initialize();
     } catch (error) {
       console.error("Failed to initialize app:", error);

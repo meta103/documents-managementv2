@@ -70,7 +70,7 @@ export class DocumentService {
 
   sortDocumentsSync(
     documents: Document[],
-    sortBy: 'name' | 'version' | 'createdDate' = 'name'
+    sortBy: 'name' | 'version' | 'createdAt' = 'createdAt'
   ): Document[] {
     return DocumentSorter.sort(documents, sortBy, 'asc');
   }

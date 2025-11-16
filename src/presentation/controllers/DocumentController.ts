@@ -12,7 +12,7 @@ import { NotificationView } from '../views/NotificationView';
  * SortBar es Web Component que se auto-renderiza
  */
 export class DocumentController {
-  private currentSortBy: 'name' | 'version' | 'createdDate' = 'createdDate';
+  private currentSortBy: 'name' | 'version' | 'createdAt' = 'createdAt';
   private allDocuments: any[] = [];
   private createDocumentCommand: CreateDocumentCommand;
   private unsubscribers: Array<() => void> = [];
@@ -40,7 +40,8 @@ export class DocumentController {
       EventBus.emit('DOCUMENTS_LOADED', { count: documents.length });
 
       // 2. Renderizar (inyecta <app-sort-bar> que se auto-renderiza)
-      this.gridView.render(documents);
+      const sorted = this.applyCurrentSort(documents);
+      this.gridView.render(sorted);
 
       // 4. Setup listeners via EventBus
       this.setupEventListeners();

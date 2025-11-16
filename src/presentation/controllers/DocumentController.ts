@@ -1,12 +1,11 @@
-import { DocumentService } from '../../application/services/DocumentService';
 import { CreateDocumentCommand } from '../../application/commands/CreateDocumentCommand';
+import { DocumentService } from '../../application/services/DocumentService';
+import { EventBus } from '../../infrastructure/event-bus/EventBus';
+import type { IDocumentRepository } from '../../infrastructure/repositories/IDocumentRepository';
 import { WebSocketService, type WebSocketNotificationService } from '../../infrastructure/services/WebSocketService';
+import { createCreateDocumentModal, type FormData } from '../components/CreateDocumentModal';
 import { DocumentsGridView } from '../views/DocumentsGridView';
 import { NotificationView } from '../views/NotificationView';
-import { EventBus } from '../../infrastructure/event-bus/EventBus';
-import { createCreateDocumentModal, type FormData } from '../components/CreateDocumentModal';
-import { DocumentRepository } from '../../infrastructure/repositories/DocumentRepository';
-import type { IDocumentRepository } from '../../infrastructure/repositories/IDocumentRepository';
 
 /**
  * DocumentController - SIMPLIFICADO

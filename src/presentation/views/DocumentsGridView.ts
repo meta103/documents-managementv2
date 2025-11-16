@@ -1,5 +1,6 @@
 import type { Document } from '../../domain/Document';
 import { AddDocumentButton } from '../components/AddDocumentButton';
+import { CellCreatedDate } from '../components/CellCreatedDate';
 import { CellList } from '../components/CellList';
 import { CellTitle } from '../components/CellTitle';
 import { Grid } from '../components/Grid';
@@ -35,16 +36,18 @@ export class DocumentsGridView {
     gridContainer.appendChild(gridMain);
 
     const cardContainer = gridMain.getElementsByClassName('grid')[0] as HTMLElement;
-    documents.forEach(({ title, version, contributors, attachments }: Document) => {
+    documents.forEach(({ title, version, contributors, attachments, createdAt }: Document) => {
       const cellName = new CellTitle(title, version);
       const cellContributors = new CellList(contributors.map(({ name }) => name));
       const cellAttachments = new CellList(attachments.map(({ name }) => name));
+      const cellCreatedDate = new CellCreatedDate(createdAt);
       /* cellName.setAttribute('data-document-id', doc.id);
       cellContributors.setAttribute('data-document-id', doc.id);
       cellAttachments.setAttribute('data-document-id', doc.id); */
       cardContainer.appendChild(cellName);
       cardContainer.appendChild(cellContributors);
       cardContainer.appendChild(cellAttachments);
+      cardContainer.appendChild(cellCreatedDate);
     })
 
     //Inyectar boton add 

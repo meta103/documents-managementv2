@@ -4,7 +4,7 @@ import { CellCreatedDate } from '../components/CellCreatedDate';
 import { CellList } from '../components/CellList';
 import { CellTitle } from '../components/CellTitle';
 import { Grid } from '../components/Grid';
-import { SortBar } from '../components/SortBar';
+import { Header } from '../components/Header';
 
 export class DocumentsGridView {
   private root: HTMLElement;
@@ -15,21 +15,21 @@ export class DocumentsGridView {
 
   render(documents: Document[]): void {
 
-    this.root.innerHTML = ''; // Limpiar contenido previo
+    this.root.innerHTML = '';
 
     if (documents.length === 0) {
       this.root.innerHTML = '<p>No hay documentos disponibles.</p>';
       return;
     }
 
+
     //Grid: 
     const gridContainer = document.createElement('div');
     gridContainer.className = 'documents-grid';
 
-    //Inyectar filtro 
-    const sortBar = new SortBar();
-    /* const sortBar = document.createElement('sort-bar'); */
-    gridContainer.appendChild(sortBar);
+    //Inyectar Header 
+    const header = new Header();
+    gridContainer.appendChild(header);
 
     //Inyectar Grid
     const gridMain = new Grid();
@@ -41,9 +41,6 @@ export class DocumentsGridView {
       const cellContributors = new CellList(contributors.map(({ name }) => name));
       const cellAttachments = new CellList(attachments.map(({ name }) => name));
       const cellCreatedDate = new CellCreatedDate(createdAt);
-      /* cellName.setAttribute('data-document-id', doc.id);
-      cellContributors.setAttribute('data-document-id', doc.id);
-      cellAttachments.setAttribute('data-document-id', doc.id); */
       cardContainer.appendChild(cellName);
       cardContainer.appendChild(cellContributors);
       cardContainer.appendChild(cellAttachments);
@@ -51,8 +48,7 @@ export class DocumentsGridView {
     })
 
     //Inyectar boton add 
-    const addButton = document.createElement('add-button');
-    /*  const addButton = new AddDocumentButton(); */
+    const addButton = new AddDocumentButton();
     gridContainer.appendChild(addButton);
 
     //Insertar en DOM:

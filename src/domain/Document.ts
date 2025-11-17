@@ -173,11 +173,6 @@ export class DocumentSorter {
     const timeA = new Date(dateA).getTime();
     const timeB = new Date(dateB).getTime();
 
-    if (isNaN(timeA) || isNaN(timeB)) {
-      console.warn('⚠️ Invalid date format');
-      return 0;
-    }
-
     return timeB - timeA;
   }
 }

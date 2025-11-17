@@ -21,16 +21,10 @@ import type { SortBy } from "../../domain/Document";
 export type EventType =
   | 'SORT_CHANGED'
   | 'SHOW_MODAL'
-  | 'DOCUMENTS_LOADED'
-  | 'DOCUMENT_CREATED'
-  | 'NOTIFICATION_SHOWN';
 
 export interface EventPayload {
   SORT_CHANGED: { sortBy: SortBy };
   SHOW_MODAL: { show: true };
-  DOCUMENTS_LOADED: { count: number };
-  DOCUMENT_CREATED: { documentId: string };
-  NOTIFICATION_SHOWN: { message: string };
 }
 
 type EventListener<T extends EventType> = (payload: EventPayload[T]) => void;

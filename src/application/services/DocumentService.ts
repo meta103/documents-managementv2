@@ -1,6 +1,6 @@
 // Application Service: Orquesta Domain + Infrastructure
 
-import { type Document, DocumentSorter, DocumentValidator, SortBy } from '../../domain/Document';
+import { type Document, DocumentSorter, SortBy } from '../../domain/Document';
 import { DocumentMapper } from '../../infrastructure/mappers/DocumentMapper';
 import type { DocumentRepository } from '../../infrastructure/repositories/DocumentRepository';
 import { ApiService } from '../../infrastructure/services/ApiService';
@@ -39,22 +39,12 @@ export class DocumentService {
       // 2. Mapea a nuestro modelo
       const documents = rawDocuments.map(raw => DocumentMapper.toDomain(raw));
 
-      //TODO: no hace falta validar creo yo
-      // 3. Valida cada documento
-      const validDocuments = documents.filter(doc => {
-        const validation = DocumentValidator.validate(doc);
-        if (!validation.valid) {
-          console.warn(`Invalid document ${doc.id}:`, validation.errors);
-        }
-        return validation.valid;
-      });
-
-      // 4. Guarda en repositorio
+      // 3. Guarda en repositorio
       //TODO: el save hace algo??? 
-      await this.repository.save(validDocuments);
+      await this.repository.save(documents);
 
-      // 5. Retorna documentos
-      return validDocuments;
+      // 4. Retorna documentos
+      return documents;
     } catch (error) {
       console.error('Error loading documents:', error);
       throw new Error('Failed to load documents');

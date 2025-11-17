@@ -1,5 +1,7 @@
 // Event Bus: Patrón centralizado para eventos de la aplicación
 
+import type { SortBy } from "../../domain/Document";
+
 /**
  * EventBus - Patrón Observer/Pub-Sub centralizado
  * 
@@ -24,7 +26,7 @@ export type EventType =
   | 'NOTIFICATION_SHOWN';
 
 export interface EventPayload {
-  SORT_CHANGED: { sortBy: 'name' | 'version' | 'createdAt' };
+  SORT_CHANGED: { sortBy: SortBy };
   SHOW_MODAL: { show: true };
   DOCUMENTS_LOADED: { count: number };
   DOCUMENT_CREATED: { documentId: string };

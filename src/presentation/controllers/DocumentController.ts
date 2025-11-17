@@ -1,5 +1,6 @@
 import { CreateDocumentCommand } from '../../application/commands/CreateDocumentCommand';
 import { DocumentService } from '../../application/services/DocumentService';
+import { SortBy } from '../../domain/Document';
 import { EventBus } from '../../infrastructure/event-bus/EventBus';
 import type { IDocumentRepository } from '../../infrastructure/repositories/IDocumentRepository';
 import { WebSocketService, type WebSocketNotificationService } from '../../infrastructure/services/WebSocketService';
@@ -7,12 +8,8 @@ import { createCreateDocumentModal, type FormData } from '../components/CreateDo
 import { DocumentsGridView } from '../views/DocumentsGridView';
 import { NotificationView } from '../views/NotificationView';
 
-/**
- * DocumentController - SIMPLIFICADO
- * SortBar es Web Component que se auto-renderiza
- */
 export class DocumentController {
-  private currentSortBy: 'name' | 'version' | 'createdAt' = 'createdAt';
+  private currentSortBy: SortBy = SortBy.DATE;
   private allDocuments: any[] = [];
   private createDocumentCommand: CreateDocumentCommand;
   private unsubscribers: Array<() => void> = [];
@@ -40,7 +37,8 @@ export class DocumentController {
       EventBus.emit('DOCUMENTS_LOADED', { count: documents.length });
 
       // 2. Renderizar (inyecta <app-sort-bar> que se auto-renderiza)
-      const sorted = this.applyCurrentSort(documents);
+      /* const sorted = this.applyCurrentSort(documents); */
+      const sorted = this.documentService.sortDocumentsSync({ documents, sortBy: this.currentSortBy });
       this.gridView.render(sorted);
 
       // 4. Setup listeners via EventBus
@@ -50,7 +48,7 @@ export class DocumentController {
       await this.documentService.observeDocuments(docs => {
         console.log('🔄 Documents changed in repository');
         this.allDocuments = docs;
-        const sorted = this.applyCurrentSort(docs);
+        const sorted = this.documentService.sortDocumentsSync({ documents, sortBy: this.currentSortBy });
         this.gridView.render(sorted);
       });
 
@@ -62,7 +60,7 @@ export class DocumentController {
 
         this.wsService.subscribe((notification: WebSocketNotificationService) => {
           const msg = `${notification.UserName} created "${notification.DocumentTitle}"`;
-          /* this.notificationView.info(msg, 6000); */
+          this.notificationView.info(msg, 6000);
         });
       } catch (error) {
         console.error('⚠️ WebSocket failed:', error);
@@ -114,7 +112,9 @@ export class DocumentController {
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Failed to create document';
       console.error('❌ Error creating document:', error);
-      this.notificationView.error(message, 8000);
+      //TODO: centralizar todas las notificaciones con el EventBus
+      this.notificationView.error(message, 1000);
+
       throw error;
     }
   }
@@ -123,34 +123,18 @@ export class DocumentController {
    * Setup listeners via EventBus
    */
   private setupEventListeners(): void {
-    const unsubscribeSort = EventBus.on('SORT_CHANGED', (payload) => {
-      this.currentSortBy = payload.sortBy;
-      console.log(`🔄 Sort changed to: ${this.currentSortBy}`);
-
-      const sorted = this.applyCurrentSort(this.allDocuments);
+    const unsubscribeSort = EventBus.on('SORT_CHANGED', ({ sortBy }) => {
+      const sorted = this.documentService.sortDocumentsSync({ documents: this.allDocuments, sortBy });
       this.gridView.render(sorted);
     });
 
     const unsubscribeShowModal = EventBus.on('SHOW_MODAL', (payload) => {
       console.log(`🔄 Show modal to: ${payload.show}`);
       this.openCreateDocumentModal();
-
-
     });
 
     this.unsubscribers.push(unsubscribeSort);
     this.unsubscribers.push(unsubscribeShowModal)
-  }
-
-  /**
-   * Aplica el sort actual
-   */
-  private applyCurrentSort(documents: any[]): any[] {
-    console.log(`Sorting by ${this.currentSortBy}...`);
-    return this.documentService.sortDocumentsSync(
-      documents,
-      this.currentSortBy
-    );
   }
 
   /**

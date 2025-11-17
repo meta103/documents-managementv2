@@ -1,3 +1,4 @@
+import type { SortBy } from '../../domain/Document';
 import { EventBus } from '../../infrastructure/event-bus/EventBus';
 
 /**
@@ -9,8 +10,6 @@ import { EventBus } from '../../infrastructure/event-bus/EventBus';
  * - Fácil de testear
  */
 export class SortBar extends HTMLElement {
-  private selectedOption: 'name' | 'version' | 'createdAt' = 'createdAt';
-
   constructor() {
     super();
   }
@@ -43,19 +42,10 @@ export class SortBar extends HTMLElement {
     const select = this.querySelector('#sort-select') as HTMLSelectElement;
     // Escucha cambios del select
     select.addEventListener('change', (e) => {
-      const sortBy = (e.target as HTMLSelectElement).value as
-        | 'name'
-        | 'version'
-        | 'createdAt';
-      this.selectedOption = (e.target as HTMLSelectElement).value as 'name' | 'version' | 'createdAt';
+      const sortBy = (e.target as HTMLSelectElement).value as SortBy;
       // ⭐ Emite a EventBus, no CustomEvent
       EventBus.emit('SORT_CHANGED', { sortBy });
     });
-  }
-
-  //No se usa
-  getCurrentSort(): 'name' | 'version' | 'createdAt' {
-    return this.selectedOption;
   }
 }
 

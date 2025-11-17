@@ -5,6 +5,7 @@ import { CellList } from '../components/CellList';
 import { CellTitle } from '../components/CellTitle';
 import { Grid } from '../components/Grid';
 import { Header } from '../components/Header';
+import { SortBar } from '../components/SortBar';
 
 export class DocumentsGridView {
   private root: HTMLElement;
@@ -29,6 +30,10 @@ export class DocumentsGridView {
     //Inyectar Header 
     const header = new Header();
     gridContainer.appendChild(header);
+
+    //Inyectar Sort 
+    /* const sort = new SortBar();
+    gridContainer.appendChild(sort); */
 
     //Inyectar Grid
     const gridMain = new Grid();

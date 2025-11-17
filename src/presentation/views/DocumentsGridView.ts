@@ -22,7 +22,6 @@ export class DocumentsGridView {
       return;
     }
 
-
     //Grid: 
     const gridContainer = document.createElement('div');
     gridContainer.className = 'documents-grid';

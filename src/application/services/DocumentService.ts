@@ -1,6 +1,6 @@
 // Application Service: Orquesta Domain + Infrastructure
 
-import { type Document, DocumentSorter, DocumentValidator } from '../../domain/Document';
+import { type Document, DocumentSorter, DocumentValidator, SortBy } from '../../domain/Document';
 import { DocumentMapper } from '../../infrastructure/mappers/DocumentMapper';
 import type { DocumentRepository } from '../../infrastructure/repositories/DocumentRepository';
 import { ApiService } from '../../infrastructure/services/ApiService';
@@ -68,10 +68,10 @@ export class DocumentService {
     return this.repository.getAll();
   }
 
-  sortDocumentsSync(
-    documents: Document[],
-    sortBy: 'name' | 'version' | 'createdAt' = 'createdAt'
-  ): Document[] {
+  sortDocumentsSync({
+    documents,
+    sortBy = SortBy.DATE
+  }: { documents: Document[], sortBy: SortBy }): Document[] {
     return DocumentSorter.sort(documents, sortBy, 'asc');
   }
 

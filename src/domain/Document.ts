@@ -45,6 +45,12 @@ export interface Attachment {
   name: string;
 }
 
+export const enum SortBy {
+  DATE = 'createdAt',
+  VERSION = 'version',
+  NAME = 'name'
+}
+
 /**
  * Validación básica de Documento
  * Reglas de negocio simples pero importantes
@@ -81,22 +87,6 @@ export class DocumentValidator {
 }
 
 export class DocumentSorter {
-  /**
-   * Tipos de ordenamiento soportados
-   */
-  static readonly SORT_BY = {
-    NAME: 'name',
-    VERSION: 'version',
-    CREATED_DATE: 'createdAt',
-  } as const;
-
-  /**
-   * Orden ascendente o descendente
-   */
-  static readonly SORT_ORDER = {
-    ASC: 'asc',
-    DESC: 'desc',
-  } as const;
 
   /**
    * Ordena documentos por el campo especificado
@@ -108,7 +98,7 @@ export class DocumentSorter {
    */
   static sort(
     documents: Document[],
-    sortBy: 'name' | 'version' | 'createdAt' = 'createdAt',
+    sortBy: SortBy = SortBy.DATE,
     order: 'asc' | 'desc' = 'asc'
   ): Document[] {
     const sorted = [...documents];
@@ -117,17 +107,17 @@ export class DocumentSorter {
       let compareValue = 0;
 
       switch (sortBy) {
-        case 'name':
+        case SortBy.NAME:
           // Ordenar por título alfabéticamente
           compareValue = a.title.localeCompare(b.title);
           break;
 
-        case 'version':
+        case SortBy.VERSION:
           // Ordenar por versión semántica
           compareValue = this.compareVersions(a.version, b.version);
           break;
 
-        case 'createdAt':
+        case SortBy.DATE:
           // Ordenar por fecha de creación
           compareValue = this.compareCreatedDates(a.createdAt, b.createdAt);
           break;

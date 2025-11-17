@@ -34,8 +34,6 @@ export class DocumentController {
       this.notificationView.success(`Loaded ${documents.length} documents`);
       this.allDocuments = documents;
 
-      EventBus.emit('DOCUMENTS_LOADED', { count: documents.length });
-
       // 2. Renderizar (inyecta <app-sort-bar> que se auto-renderiza)
       /* const sorted = this.applyCurrentSort(documents); */
       const sorted = this.documentService.sortDocumentsSync({ documents, sortBy: this.currentSortBy });
@@ -103,15 +101,9 @@ export class DocumentController {
       }
 
       const newDocument = await this.createDocumentCommand.execute(formData);
-
-      console.log('✅ Document created:', newDocument);
-
-      EventBus.emit('DOCUMENT_CREATED', { documentId: newDocument.id });
-
       this.notificationView.success(`Document "${newDocument.title}" created!`);
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Failed to create document';
-      console.error('❌ Error creating document:', error);
       //TODO: centralizar todas las notificaciones con el EventBus
       this.notificationView.error(message, 1000);
 

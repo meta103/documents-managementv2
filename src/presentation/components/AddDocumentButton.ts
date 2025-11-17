@@ -14,7 +14,7 @@ export class AddDocumentButton extends HTMLElement {
   private render(): void {
     this.innerHTML = `
       <div class="section is-flex is-justify-content-center">
-        <button id="add-document-btn" class="button is-info is-large is-rounded">
+        <button id="add-document-btn" class="button is-primary is-outlined is-large is-rounded">
           <span>➕ Add Document</span>
         </button>
       </div>

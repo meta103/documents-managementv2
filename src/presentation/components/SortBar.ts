@@ -25,7 +25,7 @@ export class SortBar extends HTMLElement {
         <div class="field">
           <label class="label">Sort by:</label>
           <div class="control">
-            <div class="select is-info is-rounded">
+            <div class="select is-primary is-rounded">
               <select id="sort-select">
                 <option value="createdAt">📅 Created Date</option>
                 <option value="name">🔠 Name (A-Z)</option>

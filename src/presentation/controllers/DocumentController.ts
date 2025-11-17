@@ -26,16 +26,12 @@ export class DocumentController {
 
   async initialize(): Promise<void> {
     try {
-      console.log('📥 Loading documents...');
-
       // 1. Cargar documentos
       const documents = await this.documentService.loadAllDocuments();
-      console.log(`✅ Loaded ${documents.length} documents`);
       this.notificationView.success(`Loaded ${documents.length} documents`);
       this.allDocuments = documents;
 
       // 2. Renderizar (inyecta <app-sort-bar> que se auto-renderiza)
-      /* const sorted = this.applyCurrentSort(documents); */
       const sorted = this.documentService.sortDocumentsSync({ documents, sortBy: this.currentSortBy });
       this.gridView.render(sorted);
 
@@ -44,7 +40,6 @@ export class DocumentController {
 
       // 5. Suscribir a cambios del repositorio
       await this.documentService.observeDocuments(docs => {
-        console.log('🔄 Documents changed in repository');
         this.allDocuments = docs;
         const sorted = this.documentService.sortDocumentsSync({ documents, sortBy: this.currentSortBy });
         this.gridView.render(sorted);
@@ -53,22 +48,15 @@ export class DocumentController {
       // 6. WebSocket
       try {
         await this.wsService.connect();
-        console.log('✅ WebSocket connected');
-        this.notificationView.info('Connected to real-time notifications');
-
         this.wsService.subscribe((notification: WebSocketNotificationService) => {
           const msg = `${notification.UserName} created "${notification.DocumentTitle}"`;
           this.notificationView.info(msg, 6000);
         });
       } catch (error) {
-        console.error('⚠️ WebSocket failed:', error);
         this.notificationView.warning('Real-time unavailable', 7000);
       }
-
-      console.log('✅ Controller initialized');
     } catch (error) {
-      console.error('❌ Init failed:', error);
-      this.notificationView.error('Failed to load documents', 10000);
+      this.notificationView.error(error instanceof Error ? error.message : 'Failed to load documents', 10000);
       throw error;
     }
   }
@@ -94,19 +82,11 @@ export class DocumentController {
    */
   private async handleCreateDocument(formData: FormData): Promise<void> {
     try {
-      console.log('📝 Creating document...', formData);
-
-      if (!this.createDocumentCommand) {
-        throw new Error('CreateDocumentCommand not initialized');
-      }
-
       const newDocument = await this.createDocumentCommand.execute(formData);
       this.notificationView.success(`Document "${newDocument.title}" created!`);
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Failed to create document';
-      //TODO: centralizar todas las notificaciones con el EventBus
       this.notificationView.error(message, 1000);
-
       throw error;
     }
   }
@@ -120,8 +100,7 @@ export class DocumentController {
       this.gridView.render(sorted);
     });
 
-    const unsubscribeShowModal = EventBus.on('SHOW_MODAL', (payload) => {
-      console.log(`🔄 Show modal to: ${payload.show}`);
+    const unsubscribeShowModal = EventBus.on('SHOW_MODAL', () => {
       this.openCreateDocumentModal();
     });
 

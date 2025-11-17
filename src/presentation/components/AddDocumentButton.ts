@@ -7,18 +7,15 @@ export class AddDocumentButton extends HTMLElement {
   }
   /* Lifecycle hook: cuando el elemento se enserte en el DOM */
   connectedCallback() {
-    console.log('AQUI ENTRA?');
-
     this.render();
     this.setupEventListener();
   }
 
   private render(): void {
     this.innerHTML = `
-      <div class="section">
-        <button id="add-document-btn" class="button is-primary is-large">
-          <span class="icon"><i class="fas fa-plus"></i></span>
-          <span>Add Document</span>
+      <div class="section is-flex is-justify-content-center">
+        <button id="add-document-btn" class="button is-info is-large is-rounded">
+          <span>➕ Add Document</span>
         </button>
       </div>
     `;
@@ -27,15 +24,8 @@ export class AddDocumentButton extends HTMLElement {
   private setupEventListener(): void {
     const button = this.querySelector('#add-document-btn') as HTMLButtonElement;
 
-    if (!button) {
-      console.error('⚠️ Button not found');
-      return;
-    }
     // Escucha cambios del select
-    button.addEventListener('click', (e) => {
-
-      console.log(e);
-
+    button.addEventListener('click', () => {
       // ⭐ Emite a EventBus, no CustomEvent
       EventBus.emit('SHOW_MODAL', { show: true });
     });

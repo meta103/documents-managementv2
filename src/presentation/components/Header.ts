@@ -10,7 +10,7 @@ export class Header extends HTMLElement {
   private render(): void {
     this.innerHTML = `
       <div class="section">
-        <h1 class="title">Documents</h1>
+        <h1 class="title"> 📂 Documents challenge | by Marcos Tagliabue </h1> 
       </div>
     `;
   }

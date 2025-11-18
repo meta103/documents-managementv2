@@ -5,32 +5,33 @@ export interface FormData {
   attachments: string[];
 }
 
-export function createCreateDocumentModal(
+export function CreateDocumentModal(
   onSubmit: (data: FormData) => Promise<void>,
   onCancel: () => void
 ): HTMLElement {
   const modal = document.createElement('div');
   modal.className = 'modal is-active';
+  modal.style = 'z-index:9999'
   modal.innerHTML = `
     <div class="modal-background"></div>
     <div class="modal-card">
       <header class="modal-card-head">
         <p class="modal-card-title">Create New Document</p>
-        <button class="delete" aria-label="close"></button>
+        <button class="delete"></button>
       </header>
       <section class="modal-card-body">
         <form id="create-doc-form">
           <div class="field">
             <label class="label">Document Title *</label>
             <div class="control">
-              <input class="input" type="text" id="title" placeholder="e.g., Project Proposal" required>
+              <input class="input" type="text" id="title" placeholder="e.g. Marcos Offer" required>
             </div>
           </div>
 
           <div class="field">
             <label class="label">Version *</label>
             <div class="control">
-              <input class="input" type="text" id="version" placeholder="e.g., 1.0.0" required>
+              <input class="input" type="number" id="version" step="0.1" min="0" placeholder="e.g. 1.0.0" required>
             </div>
           </div>
 
@@ -42,42 +43,42 @@ export function createCreateDocumentModal(
                   <input class="input contributor-input" type="text" placeholder="Contributor name">
                 </div>
                 <div class="control">
-                  <button class="button is-info remove-contributor" type="button" style="display:none;">Remove</button>
+                  <button class="button is-danger is-outlined remove-contributor" type="button" style="display:none;">Remove</button>
                 </div>
               </div>
             </div>
-            <button class="button is-light is-fullwidth mt-2" id="add-contributor" type="button">+ Add Contributor</button>
+            <button class="button is-primary is-outlined is-fullwidth mt-2" id="add-contributor" type="button">+ Add Contributor</button>
           </div>
 
           <div class="field">
-            <label class="label">Attachments</label>
+            <label class="label">Attachments *</label>
             <div id="attachments-container">
               <div class="field has-addons">
                 <div class="control is-expanded">
                   <input class="input attachment-input" type="text" placeholder="Attachment name">
                 </div>
                 <div class="control">
-                  <button class="button is-danger remove-attachment" type="button" style="display:none;">Remove</button>
+                  <button class="button is-danger is-outlined remove-attachment" type="button" style="display:none;">Remove</button>
                 </div>
               </div>
             </div>
-            <button class="button is-light is-fullwidth mt-2" id="add-attachment" type="button">+ Add Attachment</button>
+            <button class="button is-primary is-outlined is-fullwidth mt-2" id="add-attachment" type="button">+ Add Attachment</button>
           </div>
 
           <div class="notification is-danger" id="form-error" style="display:none;">
             <button class="delete"></button>
             <span id="form-error-text"></span>
           </div>
-
-          <p class="help">* Required fields</p>
         </form>
       </section>
-      <footer class="modal-card-foot">
-        <button class="button" id="cancel-btn">Cancel</button>
-        <button class="button is-primary" id="submit-btn">Create Document</button>
+      <footer class="modal-card-foot is-flex is-justify-content-end">
+        <button class="button is-rounded" id="cancel-btn">Cancel</button>
+        <button class="button is-primary is-outlined is-rounded" id="submit-btn">Create Document</button>
       </footer>
     </div>
   `;
+
+
 
   setupModalListeners(modal, onSubmit, onCancel);
   return modal;
@@ -136,11 +137,13 @@ function setupModalListeners(
     await handleSubmit(modal, onSubmit);
   });
 
+
   const errorClose = modal.querySelector('#form-error .delete') as HTMLElement;
   errorClose?.addEventListener('click', () => {
     const errorDiv = modal.querySelector('#form-error') as HTMLElement;
     errorDiv.style.display = 'none';
   });
+
 }
 
 function addContributorField(modal: HTMLElement): void {
@@ -152,7 +155,7 @@ function addContributorField(modal: HTMLElement): void {
       <input class="input contributor-input" type="text" placeholder="Contributor name">
     </div>
     <div class="control">
-      <button class="button is-danger remove-contributor" type="button">Remove</button>
+      <button class="button is-danger is-outlined remove-contributor" type="button">Remove</button>
     </div>
   `;
   container?.appendChild(field);
@@ -168,7 +171,7 @@ function addAttachmentField(modal: HTMLElement): void {
       <input class="input attachment-input" type="text" placeholder="Attachment name">
     </div>
     <div class="control">
-      <button class="button is-danger remove-attachment" type="button">Remove</button>
+      <button class="button is-danger is-outlined remove-attachment" type="button">Remove</button>
     </div>
   `;
   container?.appendChild(field);
@@ -203,6 +206,7 @@ async function handleSubmit(
       .map(input => input.value)
       .filter(val => val.trim() !== '');
 
+
     if (!title.trim()) {
       showError(modal, 'Title is required');
       return;
@@ -218,9 +222,6 @@ async function handleSubmit(
       return;
     }
 
-    const submitBtn = modal.querySelector('#submit-btn') as HTMLElement;
-    submitBtn.classList.add('is-loading');
-
     await onSubmit({
       title: title.trim(),
       version: version.trim(),
@@ -232,9 +233,6 @@ async function handleSubmit(
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Failed to create document';
     showError(modal, message);
-
-    const submitBtn = modal.querySelector('#submit-btn') as HTMLElement;
-    submitBtn.classList.remove('is-loading');
   }
 }
 

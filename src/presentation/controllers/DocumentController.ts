@@ -4,7 +4,7 @@ import { SortBy } from '../../domain/Document';
 import { EventBus } from '../../infrastructure/event-bus/EventBus';
 import type { IDocumentRepository } from '../../infrastructure/repositories/IDocumentRepository';
 import { WebSocketService, type WebSocketNotificationService } from '../../infrastructure/services/WebSocketService';
-import { createCreateDocumentModal, type FormData } from '../components/CreateDocumentModal';
+import { CreateDocumentModal, type FormData } from '../components/CreateDocumentModal';
 import { DocumentsGridView } from '../views/DocumentsGridView';
 import { NotificationView } from '../views/NotificationView';
 
@@ -41,7 +41,7 @@ export class DocumentController {
       // 5. Suscribir a cambios del repositorio
       await this.documentService.observeDocuments(docs => {
         this.allDocuments = docs;
-        const sorted = this.documentService.sortDocumentsSync({ documents, sortBy: this.currentSortBy });
+        const sorted = this.documentService.sortDocumentsSync({ documents: docs, sortBy: this.currentSortBy });
         this.gridView.render(sorted);
       });
 
@@ -65,7 +65,7 @@ export class DocumentController {
    * Abre el modal de crear documento
    */
   private openCreateDocumentModal(): void {
-    const modal = createCreateDocumentModal(
+    const modal = CreateDocumentModal(
       async (formData) => {
         await this.handleCreateDocument(formData);
       },

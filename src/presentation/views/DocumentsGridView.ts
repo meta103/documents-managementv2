@@ -5,7 +5,6 @@ import { CellList } from '../components/CellList';
 import { CellTitle } from '../components/CellTitle';
 import { Grid } from '../components/Grid';
 import { Header } from '../components/Header';
-import '../components/SortBar';
 
 export class DocumentsGridView {
   private root: HTMLElement;
@@ -52,15 +51,15 @@ export class DocumentsGridView {
       this.headerTemplate = cardContainer ? cardContainer.innerHTML : null;
     }
 
-    // Ahora inyectar las celdas en el grid existente
+    // Delegar a updateDocuments para rellenar las filas
+    this.updateDocuments(documents);
+  }
+
+  updateDocuments(documents: Document[]): void {
     const gridMainEl = (this.gridMainElement
       ? this.gridMainElement.getElementsByClassName('grid')[0]
       : this.root.getElementsByClassName('documents-grid')[0]?.getElementsByClassName('grid')[0]) as HTMLElement;
     const cardContainer = gridMainEl as HTMLElement;
-    if (!cardContainer) {
-      console.warn('[DocumentsGridView] No se encontró el contenedor de celdas');
-      return;
-    }
 
     // Restaurar header template (cabeceras) y añadir las celdas
     if (this.headerTemplate !== null) {

@@ -33,5 +33,7 @@ export class SortBar extends HTMLElement {
   }
 }
 
-customElements.define('sort-bar', SortBar);
+if (!customElements.get('sort-bar')) {
+  customElements.define('sort-bar', SortBar);
+}
 

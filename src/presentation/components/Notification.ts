@@ -78,4 +78,6 @@ export class Notification extends HTMLElement {
   }
 }
 
-customElements.define('app-notification', Notification);
+if (!customElements.get('app-notification')) {
+  customElements.define('app-notification', Notification);
+}

@@ -5,14 +5,15 @@ import { EventBus } from '../../infrastructure/event-bus/EventBus';
 import type { IDocumentRepository } from '../../infrastructure/repositories/IDocumentRepository';
 import { WebSocketService, type WebSocketNotificationService } from '../../infrastructure/services/WebSocketService';
 import { CreateDocumentModal, type FormData } from '../components/CreateDocumentModal';
-import { DocumentsGridView } from '../views/DocumentsGridView';
 import { NotificationController } from '../controllers/NotificationController';
+import { DocumentsGridView } from '../views/DocumentsGridView';
 
 export class DocumentController {
   private currentSortBy: SortByEnum = SortByEnum.DATE;
   private allDocuments: any[] = [];
   private createDocumentCommand: CreateDocumentCommand;
   private unsubscribers: Array<() => void> = [];
+  private initialized = false;
 
   constructor(
     private documentService: DocumentService,
@@ -31,9 +32,10 @@ export class DocumentController {
       this.notificationController.success(`Loaded ${documents.length} documents`);
       this.allDocuments = documents;
 
-      // 2. Renderizar
+      // 2. Renderizar (primera vez)
       const sorted = this.documentService.sortDocumentsSync({ documents, sortBy: this.currentSortBy });
       this.gridView.render(sorted);
+      this.initialized = true;
 
       // 4. Setup listeners via EventBus
       this.setupEventListeners();
@@ -42,7 +44,12 @@ export class DocumentController {
       await this.documentService.observeDocuments((docs: Document[]) => {
         this.allDocuments = docs;
         const sorted = this.documentService.sortDocumentsSync({ documents: docs, sortBy: this.currentSortBy });
-        this.gridView.render(sorted);
+        if (this.initialized) {
+          this.gridView.updateDocuments(sorted);
+        } else {
+          this.gridView.render(sorted);
+          this.initialized = true;
+        }
       });
 
       // 6. WebSocket
@@ -53,7 +60,7 @@ export class DocumentController {
           this.notificationController.info(msg, 6000);
         });
       } catch (error) {
-        this.notificationController.warning('Real-time unavailable', 7000);
+        this.notificationController.warning('WebSocket unavailable', 7000);
       }
     } catch (error) {
       this.notificationController.error(error instanceof Error ? error.message : 'Failed to load documents', 10000);

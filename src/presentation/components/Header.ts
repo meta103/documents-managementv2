@@ -17,4 +17,6 @@ export class Header extends HTMLElement {
 
 }
 
-customElements.define('header-app', Header);
+if (!customElements.get('header-app')) {
+  customElements.define('header-app', Header);
+}

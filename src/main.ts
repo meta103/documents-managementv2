@@ -1,4 +1,5 @@
 import { App } from "./app";
+import { registerCustomElements } from './bootstrap/registerCustomElements';
 import './styles/main.css';
 
 function startApp(): void {
@@ -9,6 +10,9 @@ function startApp(): void {
   }
 
   try {
+    // registrar los custom elements antes de iniciar la app
+    registerCustomElements();
+
     //Instancia la app con el elemeneto raiz
     const app = new App(rootElement);
     //Inicia la App

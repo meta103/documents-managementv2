@@ -26,4 +26,6 @@ export class CellTitle extends HTMLElement {
   }
 
 }
-customElements.define('cell-title', CellTitle);
+if (!customElements.get('cell-title')) {
+  customElements.define('cell-title', CellTitle);
+}

@@ -81,9 +81,9 @@ src
 | Pattern | Where (files) | Purpose / Notes |
 |---------|---------------|-----------------|
 | Repository | `src/infrastructure/repositories/DocumentRepository.ts`, `IDocumentRepository.ts` | Encapsulates data access and persistence (currently localStorage). Makes it easy to swap storage implementations (API, IndexedDB, etc.) without changing business logic. |
-| Observer / Event Bus | `src/infrastructure/event-bus/EventBus.ts` | Decouples components and controllers through events (publish/subscribe). Used for SORT_CHANGED and other app-level notifications. Implemented as a lightweight singleton for global dispatch. |
+| Observer / Event Bus | `src/infrastructure/event-bus/EventBus.ts` | Decouples components and controllers through events (publish/subscribe). Used for SORT_CHANGED and SHOW_MODAL. Implemented as a lightweight singleton for global dispatch. |
 | Command | `src/application/commands/CreateDocumentCommand.ts` | Encapsulates a write operation (create document) including validation and repository interaction. Improves testability and intent-revealing API. |
-| Factory / UI factory | `src/presentation/components/CreateDocumentModal.ts`, `src/bootstrap/createApp.ts` | Factories centralize complex object/component creation (modal UI and app bootstrap). Keeps construction details out of controllers. |
+| Factory / UI factory | `src/presentation/components/CreateDocumentModal.ts` | Factory centralize complex object/component creation (modal UI). Keeps construction details out of controllers. |
 | Controller (MVC-like) | `src/presentation/controllers/*.ts` and `src/presentation/views/*.ts` | Controllers orchestrate app flows (DocumentController) while Views handle DOM rendering (DocumentsGridView, NotificationView). Keeps presentation logic separated from business rules. |
 | CQRS (separation) | `src/application/services/DocumentService.ts` + Commands | Commands (write) and service queries (read/sort) are conceptually separated. This clarifies intent and allows optimizations later. |
 | Dependency Injection (manual) | `src/app.ts` | Dependencies are constructed in one place and passed to controllers/services. Facilitates testing by allowing mocks to be injected. |

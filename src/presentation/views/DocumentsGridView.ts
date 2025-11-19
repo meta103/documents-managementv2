@@ -5,7 +5,7 @@ import { CellList } from '../components/CellList';
 import { CellTitle } from '../components/CellTitle';
 import { Grid } from '../components/Grid';
 import { Header } from '../components/Header';
-import { SortBar } from '../components/SortBar';
+import '../components/SortBar';
 
 export class DocumentsGridView {
   private root: HTMLElement;
@@ -31,25 +31,29 @@ export class DocumentsGridView {
     const header = new Header();
     gridContainer.appendChild(header);
 
-    //Inyectar Sort 
-    /* const sort = new SortBar();
-    gridContainer.appendChild(sort); */
 
     //Inyectar Grid
     const gridMain = new Grid();
     gridContainer.appendChild(gridMain);
 
-    const cardContainer = gridMain.getElementsByClassName('grid')[0] as HTMLElement;
-    documents.forEach(({ title, version, contributors, attachments, createdAt }: Document) => {
-      const cellName = new CellTitle(title, version);
-      const cellContributors = new CellList(contributors.map(({ name }) => name));
-      const cellAttachments = new CellList(attachments.map(({ name }) => name));
-      const cellCreatedDate = new CellCreatedDate(createdAt);
-      cardContainer.appendChild(cellName);
-      cardContainer.appendChild(cellContributors);
-      cardContainer.appendChild(cellAttachments);
-      cardContainer.appendChild(cellCreatedDate);
-    })
+    // Espera a que el grid esté en el DOM para inyectar las celdas
+    setTimeout(() => {
+      const cardContainer = gridMain.getElementsByClassName('grid')[0] as HTMLElement;
+      if (!cardContainer) {
+        console.warn('[DocumentsGridView] No se encontró el contenedor de celdas');
+        return;
+      }
+      documents.forEach(({ title, version, contributors, attachments, createdAt }: Document) => {
+        const cellName = new CellTitle(title, version);
+        const cellContributors = new CellList(contributors.map(({ name }) => name));
+        const cellAttachments = new CellList(attachments.map(({ name }) => name));
+        const cellCreatedDate = new CellCreatedDate(createdAt);
+        cardContainer.appendChild(cellName);
+        cardContainer.appendChild(cellContributors);
+        cardContainer.appendChild(cellAttachments);
+        cardContainer.appendChild(cellCreatedDate);
+      });
+    }, 0);
 
     //Inyectar boton add 
     const addButton = new AddDocumentButton();

@@ -4,8 +4,8 @@ export class Grid extends HTMLElement {
     this.render();
   }
 
-  /* Lifecycle hook: cuando el elemento se enserte en el DOM */
-  connectCallback() {
+  /* Lifecycle hook: cuando el elemento se inserte en el DOM */
+  connectedCallback() {
     this.render();
   }
 

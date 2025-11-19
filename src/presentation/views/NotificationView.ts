@@ -9,6 +9,15 @@ export class NotificationView {
   private container: HTMLElement;
 
   constructor() {
+    // Asegura que el custom element esté registrado antes de crear instancias
+    if (!customElements.get('app-notification')) {
+      try {
+        customElements.define('app-notification', Notification);
+      } catch (e) {
+        // ignore if already defined in another bundle/context
+      }
+    }
+
     this.container = this.createContainer();
     document.body.appendChild(this.container);
   }

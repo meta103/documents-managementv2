@@ -19,6 +19,11 @@ class MockDocumentRepository implements IDocumentRepository {
       this.observers = this.observers.filter(obs => obs !== observer);
     };
   }
+
+  async save(_documents: Document[]): Promise<void> {
+    // no-op mock save
+    return;
+  }
 }
 
 // Mock ApiService

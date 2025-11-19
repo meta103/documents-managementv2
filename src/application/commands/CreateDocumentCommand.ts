@@ -44,12 +44,8 @@ export class CreateDocumentCommand {
       throw new Error('At least one contributor is required');
     }
 
-    if (dto.contributors.some(c => !c || c.trim() === '')) {
-      throw new Error('Contributor names cannot be empty');
-    }
-
-    if (!Array.isArray(dto.attachments)) {
-      throw new Error('Attachments must be an array');
+    if (!Array.isArray(dto.attachments) || dto.attachments.length === 0) {
+      throw new Error('At least one attachment is required');
     }
   }
 

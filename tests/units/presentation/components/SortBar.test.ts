@@ -1,6 +1,5 @@
 import { SortBar } from "../../../../src/presentation/components/SortBar";
 
-
 describe('SortBar', () => {
   beforeAll(() => {
     if (!customElements.get('sort-bar')) {
@@ -8,21 +7,34 @@ describe('SortBar', () => {
     }
   });
 
-  it('renders a button and fires event on click', async () => {
-    const el = document.createElement('sort-bar');
-    document.body.appendChild(el);
-    // wait for connectedCallback to run
-    await Promise.resolve();
-    const sortBar = document.querySelector('sort-bar') as SortBar;
-    expect(sortBar).not.toBeNull();
-    const button = sortBar.querySelector('#sort-test');
-    expect(button).not.toBeNull();
+  it('should render correctly', () => {
+    const sortBar = new SortBar();
+    document.body.appendChild(sortBar);
+    sortBar.connectedCallback();
 
-    let eventFired = false;
-    sortBar.addEventListener('sort-test-clicked', () => {
-      eventFired = true;
-    });
-    button!.dispatchEvent(new MouseEvent('click', { bubbles: true }));
-    expect(eventFired).toBe(true);
+    const select = sortBar.querySelector('#sort-select');
+    expect(select).not.toBeNull();
+    expect(select?.innerHTML).toContain('Created Date');
+    expect(select?.innerHTML).toContain('Name (A-Z)');
+    expect(select?.innerHTML).toContain('Version');
+
+    document.body.removeChild(sortBar);
+  });
+
+  it('should emit SORT_CHANGED event on selection change', () => {
+    const sortBar = new SortBar();
+    document.body.appendChild(sortBar);
+    sortBar.connectedCallback();
+
+    const mockCallback = jest.fn();
+    const eventBus = require('../../../../src/infrastructure/event-bus/EventBus');
+    eventBus.EventBus.on('SORT_CHANGED', mockCallback);
+
+    const select = sortBar.querySelector('#sort-select') as HTMLSelectElement;
+    select.value = 'name';
+    const event = new Event('change');
+    select.dispatchEvent(event);
+
+    expect(mockCallback).toHaveBeenCalledWith({ sortBy: 'name' });
   });
 });

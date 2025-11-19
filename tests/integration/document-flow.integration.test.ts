@@ -1,15 +1,6 @@
 import { DocumentService } from '../../src/application/services/DocumentService';
-import { DocumentRepository } from '../../src/infrastructure/repositories/DocumentRepository';
 import { DocumentMapper } from '../../src/infrastructure/mappers/DocumentMapper';
-
-/**
- * Integration Tests
- * 
- * Testea el flujo completo entre capas:
- * Domain → Application → Infrastructure
- * 
- * Todo integrado pero sin API real (mock)
- */
+import { DocumentRepository } from '../../src/infrastructure/repositories/DocumentRepository';
 
 class MockApiService {
   async getDocuments(): Promise<any[]> {
@@ -50,9 +41,7 @@ describe('Document Flow Integration', () => {
     service = new DocumentService(repository, apiService as any);
   });
 
-  /**
-   * Test 1: Carga, mapeo y almacenamiento completo
-   */
+  //carga mapeo y store
   it('should load documents from API, map them, validate, and store in repository', async () => {
     // Act
     const documents = await service.loadAllDocuments();
@@ -66,9 +55,7 @@ describe('Document Flow Integration', () => {
     expect(firstDoc.attachments).toHaveLength(2);
   });
 
-  /**
-   * Test 3: Mapper convierte DTO correctamente
-   */
+  // mapeo de DTO a modelo de dominio
   it('should map DTO from API to domain model', () => {
     // Arrange
     const rawDoc = {
@@ -90,9 +77,7 @@ describe('Document Flow Integration', () => {
     expect(mapped.contributors[0].name).toBe('Contributor');
   });
 
-  /**
-   * Test 4: Repository guarda y recupera correctamente
-   */
+  //Repositorio guarda y recupera documentos
   it('should save and retrieve documents from repository', async () => {
     // Arrange
     /* const docs = await service.loadAllDocuments(); */
@@ -104,23 +89,4 @@ describe('Document Flow Integration', () => {
     expect(retrieved).toHaveLength(2);
     expect(retrieved[0].title).toBe('Quarterly Report');
   });
-
-  /**
-   * Test 5: Observer pattern funciona
-   */
-  /* it('should notify observers when documents are saved', (done) => {
-    // Arrange
-    let changeCount = 0;
-
-    // Act
-    repository.subscribe(() => {
-      changeCount++;
-    });
-
-    service.loadAllDocuments().then(() => {
-      // Assert
-      expect(changeCount).toBeGreaterThan(0);
-      done();
-    });
-  }); */
 });

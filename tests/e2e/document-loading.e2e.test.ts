@@ -1,21 +1,5 @@
-// E2E Test: Simula el usuario accediendo a la app
-
-/**
- * E2E Tests - End to End
- * 
- * Simula lo que hace un usuario real:
- * 1. Abre la app
- * 2. Ve documentos cargados
- * 3. Interactúa con la interfaz
- * 
- * En un proyecto real, usaríamos Cypress, Playwright o Selenium
- * Aquí hacemos un test simplificado que valida el flujo
- */
-
 describe('E2E: Document Loading Flow', () => {
-  /**
-   * Simula: Usuario abre la app y ve documentos
-   */
+  //Simula usuario abre la app y carga documentos
   it('should load and display documents when user opens the app', async () => {
     // Arrange: Mock del DOM
     const mockRootElement = document.createElement('div');
@@ -72,9 +56,7 @@ describe('E2E: Document Loading Flow', () => {
     document.body.removeChild(notificationContainer);
   });
 
-  /**
-   * Simula: Usuario ve grid de documentos
-   */
+  //simula: Usuario ve grid de documentos
   it('should render document grid when data is available', () => {
     // Arrange
     const gridContainer = document.createElement('section');
@@ -110,9 +92,7 @@ describe('E2E: Document Loading Flow', () => {
     gridContainer.remove();
   });
 
-  /**
-   * Simula: Flujo completo usuario
-   */
+  //simula: Flujo completo usuario
   it('should complete the full user flow: load app → see docs → see notifications', async () => {
     // Arrange: Setup
     const app = document.createElement('div');

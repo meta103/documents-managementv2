@@ -10,7 +10,8 @@
     ],
     "types": [
       "vite/client",
-      "jest"
+      "jest",
+      "node"
     ],
     "skipLibCheck": true,
     /* Bundler mode */

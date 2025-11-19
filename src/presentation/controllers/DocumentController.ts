@@ -88,6 +88,7 @@ export class DocumentController {
   private setupEventListeners(): void {
     const unsubscribeSort = EventBus.on('SORT_CHANGED', ({ sortBy }) => {
       const sorted = this.documentService.sortDocumentsSync({ documents: this.allDocuments, sortBy });
+      this.currentSortBy = sortBy;
       this.gridView.render(sorted);
     });
 

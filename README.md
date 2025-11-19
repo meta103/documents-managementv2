@@ -2,8 +2,8 @@
 
 > **Document managemente system built with TypeScript, Domain-Driven Design, and modern architectural patterns.**
 
-## Run the project (dev)
 
+## Run the project (dev)
 This project runs a Vite frontend and a small Go server that provides the documents API and a websocket for real-time notifications.
 
 Prerequisites
@@ -18,6 +18,42 @@ npm run dev
 
 Notes:
 - The `dev` script runs both `vite` and `go run server.go` in parallel using `concurrently`.
+
+## Run tests
+
+This project uses Jest for unit and integration tests.
+
+To run all tests:
+
+```bash
+npm test
+```
+
+Or, to run tests with coverage:
+
+```bash
+npm run test:coverage
+```
+
+To run a specific test file:
+
+```bash
+npx jest path/to/testfile.test.ts
+```
+
+Test files are located in the `tests/` folder:
+
+- `tests/units/` — unit tests for services and controllers
+- `tests/integration/` — integration tests
+- `tests/e2e/` — end-to-end tests
+
+If you encounter issues with ESM or TypeScript, ensure you have the correct Node version and that dependencies are installed:
+
+```bash
+npm install
+```
+
+For troubleshooting Jest config, see `jest.config.js` and `tests/setup.ts`.
 
 ## Challenge requirements
 

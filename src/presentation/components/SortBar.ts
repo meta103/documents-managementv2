@@ -1,4 +1,4 @@
-import type { SortByEnum } from "../../domain/Document";
+import { SortByEnum } from "../../domain/Document";
 import { EventBus } from "../../infrastructure/event-bus/EventBus";
 
 export class SortBar extends HTMLElement {

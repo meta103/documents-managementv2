@@ -9,57 +9,76 @@ import '../components/SortBar';
 
 export class DocumentsGridView {
   private root: HTMLElement;
+  private headerTemplate: string | null = null;
+  private gridMainElement: HTMLElement | null = null;
 
   constructor(root: HTMLElement) {
     this.root = root;
   }
 
   render(documents: Document[]): void {
-
-    this.root.innerHTML = '';
-
+    // Si no hay documentos, limpiar y salir
     if (documents.length === 0) {
       this.root.innerHTML = '<p>No hay documentos disponibles.</p>';
       return;
     }
 
-    //Grid:
-    const gridContainer = document.createElement('div');
-    gridContainer.className = 'documents-grid';
+    // Si la estructura principal ya existe, solo actualizamos las celdas
+    const existingContainer = this.root.getElementsByClassName('documents-grid')[0] as HTMLElement | undefined;
+    if (!existingContainer) {
+      // Primera renderización: crear estructura completa
+      this.root.innerHTML = '';
+      const gridContainer = document.createElement('div');
+      gridContainer.className = 'documents-grid';
 
-    //Inyectar Header
-    const header = new Header();
-    gridContainer.appendChild(header);
+      // Inyectar Header
+      const header = new Header();
+      gridContainer.appendChild(header);
 
-    //Inyectar Grid
-    const gridMain = new Grid();
-    gridContainer.appendChild(gridMain);
+      // Inyectar Grid
+      const gridMain = new Grid();
+      gridContainer.appendChild(gridMain);
 
-    // Detectar cuando el grid está listo e inyectar celdas
-    const observer = new MutationObserver(() => {
-      const cardContainer = gridMain.querySelector('#grid') as HTMLElement;
-      if (cardContainer) {
-        documents.forEach(({ title, version, contributors, attachments, createdAt }: Document) => {
-          const cellName = new CellTitle(title, version);
-          const cellContributors = new CellList(contributors.map(({ name }) => name));
-          const cellAttachments = new CellList(attachments.map(({ name }) => name));
-          const cellCreatedDate = new CellCreatedDate(createdAt);
-          cardContainer.appendChild(cellName);
-          cardContainer.appendChild(cellContributors);
-          cardContainer.appendChild(cellAttachments);
-          cardContainer.appendChild(cellCreatedDate);
-        });
-        observer.disconnect();
-      }
+      // Inyectar botón add
+      const addButton = new AddDocumentButton();
+      gridContainer.appendChild(addButton);
+
+      // Insertar en DOM
+      this.root.appendChild(gridContainer);
+
+      // Guardar referencia al gridMain y su template de cabecera
+      this.gridMainElement = gridMain as unknown as HTMLElement;
+      const cardContainer = this.gridMainElement.getElementsByClassName('grid')[0] as HTMLElement;
+      this.headerTemplate = cardContainer ? cardContainer.innerHTML : null;
+    }
+
+    // Ahora inyectar las celdas en el grid existente
+    const gridMainEl = (this.gridMainElement
+      ? this.gridMainElement.getElementsByClassName('grid')[0]
+      : this.root.getElementsByClassName('documents-grid')[0]?.getElementsByClassName('grid')[0]) as HTMLElement;
+    const cardContainer = gridMainEl as HTMLElement;
+    if (!cardContainer) {
+      console.warn('[DocumentsGridView] No se encontró el contenedor de celdas');
+      return;
+    }
+
+    // Restaurar header template (cabeceras) y añadir las celdas
+    if (this.headerTemplate !== null) {
+      cardContainer.innerHTML = this.headerTemplate;
+    } else {
+      // Si por alguna razón no tenemos la plantilla, limpiamos completamente
+      cardContainer.innerHTML = '';
+    }
+
+    documents.forEach(({ title, version, contributors, attachments, createdAt }: Document) => {
+      const cellName = new CellTitle(title, version);
+      const cellContributors = new CellList(contributors.map(({ name }) => name));
+      const cellAttachments = new CellList(attachments.map(({ name }) => name));
+      const cellCreatedDate = new CellCreatedDate(createdAt);
+      cardContainer.appendChild(cellName);
+      cardContainer.appendChild(cellContributors);
+      cardContainer.appendChild(cellAttachments);
+      cardContainer.appendChild(cellCreatedDate);
     });
-
-    observer.observe(gridMain, { childList: true, subtree: true });
-
-    //Inyectar botón add
-    const addButton = new AddDocumentButton();
-    gridContainer.appendChild(addButton);
-
-    //Insertar en DOM:
-    this.root.appendChild(gridContainer);
   }
 }

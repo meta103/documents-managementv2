@@ -33,6 +33,7 @@ and some additional features:
 
 ## Architecture
 ### **Domain-Driven Design (DDD)**
+```
 src
 ├── application
 │  ├── commands
@@ -73,6 +74,7 @@ src
 │  └── main.css
 ├── app.ts
 └── main.ts
+```
 
 ### **Design Patterns Used**
 

@@ -1,5 +1,3 @@
-import type { Attachment, Contributor, Document } from "../../domain/Document";
-
 export class CellList extends HTMLElement {
   private info: string[] = [];
 
@@ -8,12 +6,11 @@ export class CellList extends HTMLElement {
     this.info = info;
     this.render();
   }
-  /* Lifecycle hook: cuando el elemento se enserte en el DOM */
+
   connectCallback() {
     this.render();
   }
 
-  /* renderiza el shadow DOM con los estilos encapsulados */
   private render(): void {
     this.className = 'cell';
     this.innerHTML = this.getTemplate();

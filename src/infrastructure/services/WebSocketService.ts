@@ -1,4 +1,3 @@
-/* Gestiona conexion WebSocket para notificaciones real-time */
 export interface WebSocketNotificationService {
   Timestamp: string;
   UserId: string;

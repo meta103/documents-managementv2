@@ -23,39 +23,39 @@ export class DocumentsGridView {
       return;
     }
 
-    //Grid: 
+    //Grid:
     const gridContainer = document.createElement('div');
     gridContainer.className = 'documents-grid';
 
-    //Inyectar Header 
+    //Inyectar Header
     const header = new Header();
     gridContainer.appendChild(header);
-
 
     //Inyectar Grid
     const gridMain = new Grid();
     gridContainer.appendChild(gridMain);
 
-    // Espera a que el grid esté en el DOM para inyectar las celdas
-    setTimeout(() => {
-      const cardContainer = gridMain.getElementsByClassName('grid')[0] as HTMLElement;
-      if (!cardContainer) {
-        console.warn('[DocumentsGridView] No se encontró el contenedor de celdas');
-        return;
+    // Detectar cuando el grid está listo e inyectar celdas
+    const observer = new MutationObserver(() => {
+      const cardContainer = gridMain.querySelector('#grid') as HTMLElement;
+      if (cardContainer) {
+        documents.forEach(({ title, version, contributors, attachments, createdAt }: Document) => {
+          const cellName = new CellTitle(title, version);
+          const cellContributors = new CellList(contributors.map(({ name }) => name));
+          const cellAttachments = new CellList(attachments.map(({ name }) => name));
+          const cellCreatedDate = new CellCreatedDate(createdAt);
+          cardContainer.appendChild(cellName);
+          cardContainer.appendChild(cellContributors);
+          cardContainer.appendChild(cellAttachments);
+          cardContainer.appendChild(cellCreatedDate);
+        });
+        observer.disconnect();
       }
-      documents.forEach(({ title, version, contributors, attachments, createdAt }: Document) => {
-        const cellName = new CellTitle(title, version);
-        const cellContributors = new CellList(contributors.map(({ name }) => name));
-        const cellAttachments = new CellList(attachments.map(({ name }) => name));
-        const cellCreatedDate = new CellCreatedDate(createdAt);
-        cardContainer.appendChild(cellName);
-        cardContainer.appendChild(cellContributors);
-        cardContainer.appendChild(cellAttachments);
-        cardContainer.appendChild(cellCreatedDate);
-      });
-    }, 0);
+    });
 
-    //Inyectar boton add 
+    observer.observe(gridMain, { childList: true, subtree: true });
+
+    //Inyectar botón add
     const addButton = new AddDocumentButton();
     gridContainer.appendChild(addButton);
 

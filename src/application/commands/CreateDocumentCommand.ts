@@ -1,5 +1,5 @@
 
-import { DocumentValidator, type Document } from '../../domain/Document';
+import { type Document } from '../../domain/Document';
 import type { IDocumentRepository } from '../../infrastructure/repositories/IDocumentRepository';
 
 export interface CreateDocumentDTO {
@@ -9,9 +9,6 @@ export interface CreateDocumentDTO {
   attachments: string[];
 }
 
-/**
- * CreateDocumentCommand - Caso de uso CQRS
- */
 export class CreateDocumentCommand {
   constructor(private repository: IDocumentRepository) { }
 
@@ -22,26 +19,15 @@ export class CreateDocumentCommand {
     // 2. Crear documento
     const document = this.createDocument(dto);
 
-    // 3. Validar reglas de negocio
-    const validation = DocumentValidator.validate(document);
-    if (!validation.valid) {
-      throw new Error(`Invalid document: ${validation.errors.join(', ')}`);
-    }
-
-    // 4. Obtener documentos actuales
-    console.log(this.repository);
-
+    // 3. Obtener documentos actuales
     const currentDocuments = await this.repository.getAll();
-    console.log(currentDocuments);
 
-
-    // 5. Agregar el nuevo
+    // 4. Agregar el nuevo
     const allDocuments = [...currentDocuments, document];
 
-    // 6. Guardar (dispara observers)
+    // 5. Guardar (dispara observers)
     await this.repository.save(allDocuments);
 
-    console.log(`✅ Document created: ${document.title} (${document.id})`);
     return document;
   }
 
@@ -84,6 +70,6 @@ export class CreateDocumentCommand {
   }
 
   private generateId(): string {
-    return `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    return `${Math.random().toString(36)}`;
   }
 }

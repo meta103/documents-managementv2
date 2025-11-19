@@ -11,7 +11,6 @@ export function CreateDocumentModal(
 ): HTMLElement {
   const modal = document.createElement('div');
   modal.className = 'modal is-active';
-  modal.style = 'z-index:9999'
   modal.innerHTML = `
     <div class="modal-background"></div>
     <div class="modal-card">
@@ -24,14 +23,14 @@ export function CreateDocumentModal(
           <div class="field">
             <label class="label">Document Title *</label>
             <div class="control">
-              <input class="input" type="text" id="title" placeholder="e.g. Marcos Offer" required>
+              <input class="input" type="text" id="title" placeholder="e.g. Employment contract for Marcos">
             </div>
           </div>
 
           <div class="field">
             <label class="label">Version *</label>
             <div class="control">
-              <input class="input" type="number" id="version" step="0.1" min="0" placeholder="e.g. 1.0.0" required>
+              <input class="input" type="number" id="version" step="0.1" min="0" placeholder="e.g. 1.0.0">
             </div>
           </div>
 
@@ -77,8 +76,6 @@ export function CreateDocumentModal(
       </footer>
     </div>
   `;
-
-
 
   setupModalListeners(modal, onSubmit, onCancel);
   return modal;
@@ -205,22 +202,6 @@ async function handleSubmit(
     )
       .map(input => input.value)
       .filter(val => val.trim() !== '');
-
-
-    if (!title.trim()) {
-      showError(modal, 'Title is required');
-      return;
-    }
-
-    if (!version.trim()) {
-      showError(modal, 'Version is required');
-      return;
-    }
-
-    if (contributors.length === 0) {
-      showError(modal, 'At least one contributor is required');
-      return;
-    }
 
     await onSubmit({
       title: title.trim(),

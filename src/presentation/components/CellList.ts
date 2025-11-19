@@ -22,4 +22,6 @@ export class CellList extends HTMLElement {
     `;
   }
 }
-customElements.define('document-card', CellList);
+if (!customElements.get('document-card')) {
+  customElements.define('document-card', CellList);
+}

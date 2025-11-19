@@ -1,7 +1,5 @@
 export class Grid extends HTMLElement {
-  getElementByClassName(arg0: string) {
-    throw new Error('Method not implemented.');
-  }
+
   constructor() {
     super();
   }
@@ -28,4 +26,6 @@ export class Grid extends HTMLElement {
   }
 }
 
-customElements.define('app-grid', Grid);
+if (!customElements.get('app-grid')) {
+  customElements.define('app-grid', Grid);
+}

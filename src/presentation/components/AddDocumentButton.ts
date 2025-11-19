@@ -29,4 +29,6 @@ export class AddDocumentButton extends HTMLElement {
     });
   }
 }
-customElements.define('add-button', AddDocumentButton);
+if (!customElements.get('add-button')) {
+  customElements.define('add-button', AddDocumentButton);
+}

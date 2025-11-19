@@ -44,4 +44,6 @@ export class CellCreatedDate extends HTMLElement {
   }
 
 }
-customElements.define('cell-created-at', CellCreatedDate);
+if (!customElements.get('cell-created-at')) {
+  customElements.define('cell-created-at', CellCreatedDate);
+}

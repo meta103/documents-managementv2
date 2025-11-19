@@ -1,9 +1,3 @@
-/**
- * Documento - Modelo de dominio
- * Representa la estructura de un documento
- * 
- * Este es el corazón del negocio, independiente de cualquier framework o librería
- */
 export interface Document {
   id: string;
   title: string;
@@ -22,11 +16,6 @@ export interface DocumentRaw {
   Attachments: string[];
   Contributors: ContributorRaw[];
 }
-
-/**
- * Contribuidor - Value Object
- * Encapsula la información de quien contribuyó
- */
 export interface Contributor {
   id: string;
   name: string;
@@ -36,69 +25,20 @@ export interface ContributorRaw {
   ID: string;
   Name: string;
 }
-
-/**
- * Attachment - Value Object
- * Representa un archivo adjunto
- */
 export interface Attachment {
   name: string;
 }
 
-export const enum SortBy {
+export const enum SortByEnum {
   DATE = 'createdAt',
   VERSION = 'version',
   NAME = 'name'
 }
 
-/**
- * Validación básica de Documento
- * Reglas de negocio simples pero importantes
- */
-export class DocumentValidator {
-  static validate(doc: Document): { valid: boolean; errors: string[] } {
-    const errors: string[] = [];
-
-    if (!doc.id || doc.id.trim() === '') {
-      errors.push('Document ID is required');
-    }
-
-    if (!doc.title || doc.title.trim() === '') {
-      errors.push('Document title is required');
-    }
-
-    if (!doc.version || doc.version.trim() === '') {
-      errors.push('Document version is required');
-    }
-
-    if (!Array.isArray(doc.contributors)) {
-      errors.push('Contributors must be an array');
-    }
-
-    if (!Array.isArray(doc.attachments)) {
-      errors.push('Attachments must be an array');
-    }
-
-    return {
-      valid: errors.length === 0,
-      errors,
-    };
-  }
-}
-
 export class DocumentSorter {
-
-  /**
-   * Ordena documentos por el campo especificado
-   * 
-   * @param documents Array de documentos a ordenar
-   * @param sortBy Campo por el cual ordenar: 'name' | 'version' | 'createdAt'
-   * @param order Orden: 'asc' | 'desc'
-   * @returns Array ordenado (no modifica el original)
-   */
   static sort(
     documents: Document[],
-    sortBy: SortBy = SortBy.DATE,
+    sortBy: SortByEnum = SortByEnum.DATE,
     order: 'asc' | 'desc' = 'asc'
   ): Document[] {
     const sorted = [...documents];
@@ -107,18 +47,15 @@ export class DocumentSorter {
       let compareValue = 0;
 
       switch (sortBy) {
-        case SortBy.NAME:
-          // Ordenar por título alfabéticamente
+        case SortByEnum.NAME:
           compareValue = a.title.localeCompare(b.title);
           break;
 
-        case SortBy.VERSION:
-          // Ordenar por versión semántica
+        case SortByEnum.VERSION:
           compareValue = this.compareVersions(a.version, b.version);
           break;
 
-        case SortBy.DATE:
-          // Ordenar por fecha de creación
+        case SortByEnum.DATE:
           compareValue = this.compareCreatedDates(a.createdAt, b.createdAt);
           break;
 
@@ -126,26 +63,16 @@ export class DocumentSorter {
           compareValue = 0;
       }
 
-      // Invertir si es descendente
       return order === 'desc' ? -compareValue : compareValue;
     });
 
     return sorted;
   }
 
-  /**
-   * Compara versiones semánticas correctamente
-   * 
-   * Ejemplos:
-   * - "1.0.0" > "0.9.0" ✅
-   * - "2.1.0" > "2.0.5" ✅
-   * - "1.0.0" = "1.0.0" ✅
-   */
   private static compareVersions(versionA: string, versionB: string): number {
     const partsA = versionA.split('.').map(Number);
     const partsB = versionB.split('.').map(Number);
 
-    // Itera por cada parte de la versión
     for (let i = 0; i < Math.max(partsA.length, partsB.length); i++) {
       const partA = partsA[i] || 0;
       const partB = partsB[i] || 0;

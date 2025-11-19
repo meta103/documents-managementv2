@@ -6,20 +6,14 @@ export class CellCreatedDate extends HTMLElement {
     this.relativeDate = this.formatToRelative(new Date(createdAt));
     this.render();
   }
-  /* Lifecycle hook: cuando el elemento se enserte en el DOM */
+
   connectedCallback() {
     this.render();
   }
 
-  /* renderiza el shadow DOM con los estilos encapsulados */
   private render(): void {
     this.className = 'cell';
     this.innerHTML = this.getTemplate();
-
-    /* const shadow = this.attachShadow({ mode: 'open' });
-    shadow.innerHTML = this.getTemplate();
-    //TODO: agregar estilos
-    shadow.appendChild(this.getStyles()); */
   }
 
   private formatToRelative(date: Date): string {

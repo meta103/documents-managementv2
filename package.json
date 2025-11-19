@@ -4,10 +4,11 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "tsc && vite build",
-    "preview": "vite preview",
+    "dev": "npm run vite-and-go",
+    "vite-and-go": "concurrently \"vite\" \"cd server && go run server.go\"",
     "test": "jest",
+    "build": "vite build",
+    "preview": "vite preview",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
     "test:unit": "jest tests/unit",
@@ -17,6 +18,7 @@
   "devDependencies": {
     "@types/jest": "^30.0.0",
     "@types/node": "^24.10.1",
+    "concurrently": "^9.2.1",
     "jest": "^30.2.0",
     "jest-environment-jsdom": "^30.2.0",
     "ts-jest": "^29.4.5",
